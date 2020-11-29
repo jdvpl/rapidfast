@@ -1,6 +1,16 @@
 <resources>
     <string name="app_name">RapidFast</string>
     <string name="app_incial">Rapid Fast más rápido que nunca</string>
-    <string name="conductor">Conductor</string>
-    <string name="cliente">Cliente</string>
+    <string name="conductor">Soy Conductor</string>
+    <string name="cliente">Soy Usuario</string>
+
+    <!--    del opcional-->
+    <string name="option">¿Qué quieres hacer?</string>
+    <string name="Nombre">Nombre Completo</string>
+    <string name="cedula">Cédula</string>
+    <string name="Email">Correo</string>
+    <string name="contrasena">Contraseña</string>
+    <string name="registrar">Registrar</string>
+    <string name="repetirCOntrasena">Repetir Contraseña</string>
+    <string name="IniciarSesion">Iniciar Sesion</string>
 </resources>

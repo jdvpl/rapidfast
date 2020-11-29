@@ -11,7 +11,8 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        >
 
         <ImageView
             android:layout_width="150dp"
@@ -28,29 +29,54 @@
             android:layout_margin="30dp"
             android:textSize="22sp"
             android:textStyle="bold"/>
+
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="bottom"
             android:layout_margin="20dp"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            >
 
             <Button
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:backgroundTint="#1976D2"
+                android:background="@drawable/boton_redondeado"
+                android:backgroundTint="@color/azulclaro"
                 android:layout_marginRight="5dp"
                 android:textColor="@color/white"
                 android:text="@string/conductor"/>
             <Button
                 android:layout_width="0dp"
                 android:layout_weight="1"
+                android:background="@drawable/boton_redondeado"
                 android:backgroundTint="@color/RojoVivo"
                 android:layout_height="wrap_content"
                 android:textColor="@color/white"
                 android:text="@string/cliente"/>
         </LinearLayout>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     </LinearLayout>
 
