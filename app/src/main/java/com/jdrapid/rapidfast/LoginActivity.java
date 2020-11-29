@@ -1,9 +1,9 @@
 package com.jdrapid.rapidfast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.AlertDialog;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -18,6 +18,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 //strings
+import dmax.dialog.SpotsDialog;
+
 import static com.jdrapid.rapidfast.R.string.EmailContaseñaobligatorio;
 import static com.jdrapid.rapidfast.R.string.LoginActivityemailYpassworsIncorectos;
 import static com.jdrapid.rapidfast.R.string.passwordseis;
@@ -29,6 +31,8 @@ public class LoginActivity extends AppCompatActivity {
 //    viarable del activyti
     TextInputEditText InEmail,InContrasena;
     Button BtnLogin;
+//    Alert
+    AlertDialog alertDialog;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,6 +44,8 @@ public class LoginActivity extends AppCompatActivity {
 //        hacer instancia
         auth=FirebaseAuth.getInstance();
         mDatabase= FirebaseDatabase.getInstance().getReference();
+//        alert instance
+        alertDialog=new SpotsDialog.Builder().setContext(LoginActivity.this).setMessage("Espere un momento").build();
         
         BtnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -55,6 +61,7 @@ public class LoginActivity extends AppCompatActivity {
         String contrasena=InContrasena.getText().toString();
         if (!correo.isEmpty() && !contrasena.isEmpty()){
             if (contrasena.length()>=6){
+                alertDialog.show();
                 auth.signInWithEmailAndPassword(correo,contrasena).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
@@ -63,6 +70,7 @@ public class LoginActivity extends AppCompatActivity {
                         }else{
                             Toast.makeText(LoginActivity.this, LoginActivityemailYpassworsIncorectos,Toast.LENGTH_LONG).show();
                         }
+                        alertDialog.dismiss();
                     }
                 });
             }else{
