@@ -6,11 +6,19 @@
 
     <!--    del opcional-->
     <string name="option">¿Qué quieres hacer?</string>
+    <string name="Sellogin">Ya tengo cuenta</string>
+    <string name="Selregisto">Regostrarme</string>
+
+
     <string name="Nombre">Nombre Completo</string>
-    <string name="cedula">Cédula</string>
     <string name="Email">Correo</string>
+
     <string name="contrasena">Contraseña</string>
     <string name="registrar">Registrar</string>
     <string name="repetirCOntrasena">Repetir Contraseña</string>
+    <!--    iniciar sesion-->
     <string name="IniciarSesion">Iniciar Sesion</string>
+    <!--    toolbar-->
+    <string name="seleccionar_accion">Selecciona una opcion</string>
+    <string name="select_toolbar_opcion">Selecciona una opcion</string>
 </resources>
