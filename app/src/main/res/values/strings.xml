@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">RapidFast</string>
+    <string name="app_incial">Rapid Fast más rápido que nunca</string>
+    <string name="conductor">Conductor</string>
+    <string name="cliente">Cliente</string>
 </resources>
