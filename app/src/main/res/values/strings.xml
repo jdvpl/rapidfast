@@ -21,4 +21,9 @@
     <!--    toolbar-->
     <string name="seleccionar_accion">Selecciona una opcion</string>
     <string name="select_toolbar_opcion">Selecciona una opcion</string>
+<!--    Toast de login-->
+    <string name="LoginActivityemailYpassworsIncorectos">Email o Contraseña incorrectos</string>
+    <string name="EmailContaseñaobligatorio">Email y Contaseña obligatorios</string>
+    <string name="passwordseis">La contraseña debe tener al menos 6 caracteres</string>
+
 </resources>
