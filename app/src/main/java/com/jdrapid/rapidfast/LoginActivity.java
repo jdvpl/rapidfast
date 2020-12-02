@@ -2,6 +2,7 @@ package com.jdrapid.rapidfast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import android.app.AlertDialog;
 import android.os.Bundle;
@@ -31,6 +32,7 @@ public class LoginActivity extends AppCompatActivity {
 //    viarable del activyti
     TextInputEditText InEmail,InContrasena;
     Button BtnLogin;
+    Toolbar toolbar;
 //    Alert
     AlertDialog alertDialog;
     @Override
@@ -40,6 +42,11 @@ public class LoginActivity extends AppCompatActivity {
         InEmail=findViewById(R.id.txtInputCorrero);
         InContrasena=findViewById(R.id.txtInputContrasena);
         BtnLogin=findViewById(R.id.BtnLogin);
+//        toolbar
+        toolbar=findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle(R.string.ToolbarLogin);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
 //        hacer instancia
         auth=FirebaseAuth.getInstance();

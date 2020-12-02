@@ -6,6 +6,11 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
     tools:context=".RegistroActivity">
+
+    <include
+        android:id="@+id/toolbar"
+        layout="@layout/toolbar"/>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -32,6 +37,7 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="5dp">
             <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/InNombre"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/Nombre"
@@ -55,6 +61,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="5dp">
                 <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/InEmail"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/Email"
@@ -75,8 +82,10 @@
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                app:passwordToggleEnabled="true"
                 android:layout_marginStart="5dp">
                 <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/InContrasena"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/contrasena"
@@ -97,8 +106,10 @@
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                app:passwordToggleEnabled="true"
                 android:layout_marginStart="5dp">
                 <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/RepetirContra"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/repetirCOntrasena"
@@ -107,11 +118,12 @@
         </LinearLayout>
 
         <Button
+            android:id="@+id/BtnRegistrar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/registrar"
             android:background="@drawable/boton_redondeado"
-            android:backgroundTint="@color/azulclaro"
+            android:backgroundTint="@color/colorPrimaryDark"
             android:textColor="@color/white"
             android:layout_marginHorizontal="20dp"
             android:layout_marginTop="15dp"/>

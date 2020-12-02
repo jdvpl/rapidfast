@@ -12,10 +12,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.RapidFast">
 
-        <activity android:name=".MainActivity"></activity>
+        <activity android:name=".MainActivity" />
 
-        <activity android:name=".LoginActivity" />
-        <activity android:name=".RegistroActivity" />
+        <activity android:name=".LoginActivity"
+            android:parentActivityName=".SeletAuthOptionActivity"/>
+        <activity android:name=".RegistroActivity"
+            android:parentActivityName=".SeletAuthOptionActivity"/>
         <activity
             android:name=".SeletAuthOptionActivity"
             android:parentActivityName=".MainActivity" />

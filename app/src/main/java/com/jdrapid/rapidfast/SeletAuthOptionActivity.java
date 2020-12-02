@@ -10,22 +10,32 @@ import android.widget.Button;
 
 
 public class SeletAuthOptionActivity extends AppCompatActivity {
-    Button BtnLogin;
+    Button BtnLogin,BtnRegistro;
     Toolbar toolbar;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_selet_auth_option);
+
         toolbar=findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setTitle(R.string.select_toolbar_opcion);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
+
         BtnLogin=findViewById(R.id.BtnLogin);
+        BtnRegistro=findViewById(R.id.BtnRegistro);
         BtnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 iraLogin();
+            }
+        });
+
+        BtnRegistro.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                iraRegister();
             }
         });
     }
@@ -33,5 +43,9 @@ public class SeletAuthOptionActivity extends AppCompatActivity {
     private void iraLogin() {
         Intent intent=new Intent(SeletAuthOptionActivity.this,LoginActivity.class);
         startActivity(intent);
+    }
+    private void iraRegister() {
+        Intent intent1=new Intent(SeletAuthOptionActivity.this,RegistroActivity.class);
+        startActivity(intent1);
     }
 }

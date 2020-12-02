@@ -26,4 +26,9 @@
     <string name="EmailContaseñaobligatorio">Email y Contaseña obligatorios</string>
     <string name="passwordseis">La contraseña debe tener al menos 6 caracteres</string>
 
+    <string name="ToolbarLogin">Login</string>
+    <string name="CamposVacios">Por favor ingresar todos los campos</string>
+    <string name="seiscaracteres">La contraseña debe tener al menos6 caracteres</string>
+    <string name="ContrasenasNoCoinciden">Las contraseñas no coinciden</string>
+
 </resources>
