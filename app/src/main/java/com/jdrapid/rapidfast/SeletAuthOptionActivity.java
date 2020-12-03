@@ -8,6 +8,8 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
+import com.jdrapid.rapidfast.includes.ToolBar;
+
 
 public class SeletAuthOptionActivity extends AppCompatActivity {
     Button BtnLogin,BtnRegistro;
@@ -17,10 +19,7 @@ public class SeletAuthOptionActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_selet_auth_option);
 
-        toolbar=findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle(R.string.select_toolbar_opcion);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        ToolBar.mostrar(this,getString(R.string.seleccionar_accion),true);
 
 
         BtnLogin=findViewById(R.id.BtnLogin);

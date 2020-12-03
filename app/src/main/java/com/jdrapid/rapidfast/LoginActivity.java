@@ -17,6 +17,7 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.jdrapid.rapidfast.includes.ToolBar;
 
 //strings
 import dmax.dialog.SpotsDialog;
@@ -32,7 +33,7 @@ public class LoginActivity extends AppCompatActivity {
 //    viarable del activyti
     TextInputEditText InEmail,InContrasena;
     Button BtnLogin;
-    Toolbar toolbar;
+
 //    Alert
     AlertDialog alertDialog;
     @Override
@@ -43,10 +44,7 @@ public class LoginActivity extends AppCompatActivity {
         InContrasena=findViewById(R.id.txtInputContrasena);
         BtnLogin=findViewById(R.id.BtnLogin);
 //        toolbar
-        toolbar=findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle(R.string.ToolbarLogin);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        ToolBar.mostrar(this,getString(R.string.ToolBarLogin),true);
 
 //        hacer instancia
         auth=FirebaseAuth.getInstance();

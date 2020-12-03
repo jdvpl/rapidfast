@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import android.app.AlertDialog;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
@@ -17,75 +18,66 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.jdrapid.rapidfast.includes.ToolBar;
+import com.jdrapid.rapidfast.models.Cliente;
 import com.jdrapid.rapidfast.models.Usuario;
+import com.jdrapid.rapidfast.providers.AuthProvider;
+import com.jdrapid.rapidfast.providers.ClienteProvider;
+
+import dmax.dialog.SpotsDialog;
 
 import static com.jdrapid.rapidfast.R.string.CamposVacios;
-import static com.jdrapid.rapidfast.R.string.ContrasenasNoCoinciden;
+import static com.jdrapid.rapidfast.R.string.firebase_database_url;
 import static com.jdrapid.rapidfast.R.string.seiscaracteres;
 
 public class RegistroActivity extends AppCompatActivity {
-    Toolbar toolbar;
     //    preferencia para pasar datos
     SharedPreferences preferences;
-    FirebaseAuth auth;
-    DatabaseReference reference;
+
     Button btnRegistro;
-    TextInputEditText tnombre,tcorreo,tontrase,trepetir;
+    TextInputEditText tnombre,tcorreo,tontrase;
+    AlertDialog alertDialog;
+    AuthProvider authProvider;
+    ClienteProvider clienteProvider;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_registro);
-//        toolbar
-        toolbar=findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        getSupportActionBar().setTitle(R.string.select_toolbar_opcion);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-//        instancia de firebase
-        auth=FirebaseAuth.getInstance();
-        reference= FirebaseDatabase.getInstance().getReference();
+        ToolBar.mostrar(this,getString(R.string.ToolBarRegistro),true);
+
 //        para obtener si es usuario o conductor
         preferences=getApplicationContext().getSharedPreferences("typeUser",MODE_PRIVATE);
 
+        alertDialog=new SpotsDialog.Builder().setContext(RegistroActivity.this).setMessage("Espere un momento").build();
 
+        authProvider=new AuthProvider();
+        clienteProvider=new ClienteProvider();
 
         tnombre=findViewById(R.id.InNombre);
         tcorreo=findViewById(R.id.InEmail);
         tontrase=findViewById(R.id.InContrasena);
-        trepetir=findViewById(R.id.RepetirContra);
 
         btnRegistro=findViewById(R.id.BtnRegistrar);
 
         btnRegistro.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                RegistrarUsuario();
+                ClickRegistrarUsuario();
             }
         });
     }
 
-    private void RegistrarUsuario() {
+
+    private void ClickRegistrarUsuario() {
         final String nombre=tnombre.getText().toString();
         final  String correo=tcorreo.getText().toString();
         final String contrasena=tontrase.getText().toString();
-         final String repetir=trepetir.getText().toString();
 
-        if (!nombre.isEmpty() && !correo.isEmpty() && !contrasena.isEmpty() && !repetir.isEmpty()){
+        if (!nombre.isEmpty() && !correo.isEmpty() && !contrasena.isEmpty()){
             if(contrasena.length()>=6){
-                if(contrasena!=repetir){
-                    auth.createUserWithEmailAndPassword(correo,contrasena).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                        @Override
-                        public void onComplete(@NonNull Task<AuthResult> task) {
-                            if (task.isSuccessful()){
-                                guardarUsuario(nombre,correo);
-                            }else{
-                                Toast.makeText(RegistroActivity.this,"No se pudo registrar el usuario",Toast.LENGTH_LONG).show();
-                            }
-                        }
-                    });
+                alertDialog.show();
+                    registar(nombre,correo,contrasena);
                 }else{
-                    Toast.makeText(this, ContrasenasNoCoinciden,Toast.LENGTH_LONG).show();
-                }
-            }else{
                 Toast.makeText(this, seiscaracteres,Toast.LENGTH_LONG).show();
             }
         }else{
@@ -94,36 +86,66 @@ public class RegistroActivity extends AppCompatActivity {
 
     }
 
-    private void guardarUsuario(String nombre,String correo) {
+    private void registar(String nombre,String correo, String contrasena) {
+        authProvider.Registo(correo,contrasena).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+            @Override
+            public void onComplete(@NonNull Task<AuthResult> task) {
+                alertDialog.hide();
+                if (task.isSuccessful()){
+                    String id=FirebaseAuth.getInstance().getCurrentUser().getUid();
+                    Cliente cliente=new Cliente(id,nombre,correo);
+                    create(cliente);
+                }else{
+                    Toast.makeText(RegistroActivity.this,"Este correo ya existe",Toast.LENGTH_LONG).show();
+                }
+            }
+        });
+    }
+    private void create(Cliente cliente){
+        clienteProvider.create(cliente).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()){
+                    Toast.makeText(RegistroActivity.this, "Cliente registrado", Toast.LENGTH_SHORT).show();
+                }else{
+                    Toast.makeText(RegistroActivity.this, "Error cleinte ya registrado", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+/*
+    private void guardarUsuario(String Id,String nombre,String correo) {
         String eleccion=preferences.getString("user","");
         Usuario usuario=new Usuario();
         usuario.setNombre(nombre);
         usuario.setCorreo(correo);
 
         if (eleccion.equals("conductor")){
-            reference.child("Usuarios").child("Conductores").push().setValue(usuario).addOnCompleteListener(new OnCompleteListener<Void>() {
+            reference.child("Usuarios").child("Conductores").child(Id).setValue(usuario).addOnCompleteListener(new OnCompleteListener<Void>() {
                 @Override
                 public void onComplete(@NonNull Task<Void> task) {
                     if (task.isSuccessful()){
                         Toast.makeText(RegistroActivity.this,"Registro exitoso",Toast.LENGTH_LONG).show();
                     }else{
-                        Toast.makeText(RegistroActivity.this,"Registro exitoso",Toast.LENGTH_LONG).show();
+                        Toast.makeText(RegistroActivity.this,"Registro No exitoso",Toast.LENGTH_LONG).show();
                     }
                 }
             });
 
         }else if (eleccion.equals("cliente")){
-            reference.child("Usuarios").child("Clientes").push().setValue(usuario).addOnCompleteListener(new OnCompleteListener<Void>() {
+            reference.child("Usuarios").child("Clientes").child(Id).setValue(usuario).addOnCompleteListener(new OnCompleteListener<Void>() {
                 @Override
                 public void onComplete(@NonNull Task<Void> task) {
                     if (task.isSuccessful()){
                         Toast.makeText(RegistroActivity.this,"Registro exitoso",Toast.LENGTH_LONG).show();
                     }else{
-                        Toast.makeText(RegistroActivity.this,"Registro exitoso",Toast.LENGTH_LONG).show();
+                        Toast.makeText(RegistroActivity.this,"Registro No exitoso",Toast.LENGTH_LONG).show();
                     }
                 }
             });
 
         }
     }
+
+ */
 }
