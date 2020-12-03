@@ -8,7 +8,10 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.jdrapid.rapidfast.R;
+import com.jdrapid.rapidfast.activities.cliente.MapClienteActivity;
+import com.jdrapid.rapidfast.activities.conductor.MapConductorActivity;
 
 public class MainActivity extends AppCompatActivity {
     Button mConductor;
@@ -43,6 +46,22 @@ public class MainActivity extends AppCompatActivity {
                 irSelectAuth();
             }
         });
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (FirebaseAuth.getInstance().getCurrentUser() != null){
+            String user=preferences.getString("user","");
+            if (user.equals("cliente")){
+                Intent intent=new Intent(MainActivity.this, MapClienteActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+            }else {
+                Intent intent=new Intent(MainActivity.this, MapConductorActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            }
+        }
     }
 
     private void irSelectAuth() {

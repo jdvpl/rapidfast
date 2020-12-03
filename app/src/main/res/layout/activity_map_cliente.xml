@@ -6,10 +6,11 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
     tools:context=".activities.cliente.MapClienteActivity">
-    <TextView
+    <Button
+        android:id="@+id/btnlogout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Map de cliente"
+        android:text="Cerrar Sesion"
         android:gravity="center"
         android:textStyle="bold"
         android:textSize="20sp"

@@ -4,6 +4,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.AlertDialog;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -17,6 +19,9 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.jdrapid.rapidfast.R;
+import com.jdrapid.rapidfast.activities.cliente.MapClienteActivity;
+import com.jdrapid.rapidfast.activities.cliente.RegistroClienteActivity;
+import com.jdrapid.rapidfast.activities.conductor.MapConductorActivity;
 import com.jdrapid.rapidfast.includes.ToolBar;
 
 //strings
@@ -36,6 +41,8 @@ public class LoginActivity extends AppCompatActivity {
 
 //    Alert
     AlertDialog alertDialog;
+//    shared
+    SharedPreferences preferences;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -51,6 +58,9 @@ public class LoginActivity extends AppCompatActivity {
         mDatabase= FirebaseDatabase.getInstance().getReference();
 //        alert instance
         alertDialog=new SpotsDialog.Builder().setContext(LoginActivity.this).setMessage("Espere un momento").build();
+
+//        isntancia del shared
+        preferences=getApplicationContext().getSharedPreferences("typeUser",MODE_PRIVATE);
         
         BtnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -71,7 +81,15 @@ public class LoginActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()){
-                            Toast.makeText(LoginActivity.this, "Login Exitoso",Toast.LENGTH_LONG).show();
+                           String tipoUser=preferences.getString("user","");
+                           if (tipoUser.equals("cliente")){
+                               Intent intent=new Intent(LoginActivity.this, MapClienteActivity.class);
+                               intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                               startActivity(intent);
+                           }else {
+                               Intent intent=new Intent(LoginActivity.this, MapConductorActivity.class);
+                               intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                           }
                         }else{
                             Toast.makeText(LoginActivity.this, LoginActivityemailYpassworsIncorectos,Toast.LENGTH_LONG).show();
                         }

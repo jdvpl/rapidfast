@@ -16,4 +16,7 @@ public class AuthProvider {
     public Task<AuthResult> Login(String correo, String contrasena){
         return auth.signInWithEmailAndPassword(correo,contrasena);
     }
+    public void logout(){
+        auth.signOut();
+    }
 }

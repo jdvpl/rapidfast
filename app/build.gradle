@@ -46,6 +46,8 @@ dependencies {
     implementation 'com.google.firebase:firebase-database'
 //    alert
     implementation 'com.github.d-max:spots-dialog:1.1@aar'
+//    google maps
+    implementation 'com.google.android.gms:play-services-maps:16.1.0'
 
 }
 
