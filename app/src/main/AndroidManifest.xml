@@ -11,19 +11,21 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.RapidFast">
-
-        <activity android:name=".MainActivity" />
-
-        <activity android:name=".LoginActivity"
-            android:parentActivityName=".SeletAuthOptionActivity"/>
-        <activity android:name=".RegistroActivity"
-            android:parentActivityName=".SeletAuthOptionActivity"/>
+        <activity android:name=".activities.conductor.MapConductorActivity"></activity>
+        <activity android:name=".activities.cliente.MapClienteActivity" />
+        <activity android:name=".activities.conductor.RegistroConductorActivity" />
+        <activity android:name=".activities.MainActivity" />
         <activity
-            android:name=".SeletAuthOptionActivity"
-            android:parentActivityName=".MainActivity" />
-
+            android:name=".activities.LoginActivity"
+            android:parentActivityName=".activities.SeletAuthOptionActivity" />
         <activity
-            android:name=".SplashActivity"
+            android:name=".activities.cliente.RegistroClienteActivity"
+            android:parentActivityName=".activities.SeletAuthOptionActivity" />
+        <activity
+            android:name=".activities.SeletAuthOptionActivity"
+            android:parentActivityName=".activities.MainActivity" />
+        <activity
+            android:name=".activities.SplashActivity"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -35,7 +37,6 @@
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
-
     </application>
 
 </manifest>

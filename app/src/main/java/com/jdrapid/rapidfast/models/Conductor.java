@@ -8,7 +8,7 @@ public class Conductor {
     String marcaVehiculo;
     String PlacaVehiculo;
 
-    public Conductor(String id, String nombre, String correo, String cedula, String marcaVehiculo, String placaVehiculo) {
+    public Conductor(String id, String cedula,String nombre, String correo,  String marcaVehiculo, String placaVehiculo) {
         this.id = id;
         this.nombre = nombre;
         this.correo = correo;

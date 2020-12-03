@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
     android:background="@color/colorPrimary"
-    tools:context=".SeletAuthOptionActivity">
+    tools:context=".activities.SeletAuthOptionActivity">
 
     <include
         android:id="@+id/toolbar"

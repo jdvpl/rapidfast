@@ -1,10 +1,10 @@
-package com.jdrapid.rapidfast;
+package com.jdrapid.rapidfast.activities.cliente;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 
 import android.app.AlertDialog;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
@@ -16,21 +16,20 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
+import com.jdrapid.rapidfast.R;
+import com.jdrapid.rapidfast.activities.conductor.MapConductorActivity;
+import com.jdrapid.rapidfast.activities.conductor.RegistroConductorActivity;
 import com.jdrapid.rapidfast.includes.ToolBar;
 import com.jdrapid.rapidfast.models.Cliente;
-import com.jdrapid.rapidfast.models.Usuario;
 import com.jdrapid.rapidfast.providers.AuthProvider;
 import com.jdrapid.rapidfast.providers.ClienteProvider;
 
 import dmax.dialog.SpotsDialog;
 
 import static com.jdrapid.rapidfast.R.string.CamposVacios;
-import static com.jdrapid.rapidfast.R.string.firebase_database_url;
 import static com.jdrapid.rapidfast.R.string.seiscaracteres;
 
-public class RegistroActivity extends AppCompatActivity {
+public class RegistroClienteActivity extends AppCompatActivity {
     //    preferencia para pasar datos
     SharedPreferences preferences;
 
@@ -48,7 +47,7 @@ public class RegistroActivity extends AppCompatActivity {
 //        para obtener si es usuario o conductor
         preferences=getApplicationContext().getSharedPreferences("typeUser",MODE_PRIVATE);
 
-        alertDialog=new SpotsDialog.Builder().setContext(RegistroActivity.this).setMessage("Espere un momento").build();
+        alertDialog=new SpotsDialog.Builder().setContext(RegistroClienteActivity.this).setMessage("Espere un momento").build();
 
         authProvider=new AuthProvider();
         clienteProvider=new ClienteProvider();
@@ -96,7 +95,7 @@ public class RegistroActivity extends AppCompatActivity {
                     Cliente cliente=new Cliente(id,nombre,correo);
                     create(cliente);
                 }else{
-                    Toast.makeText(RegistroActivity.this,"Este correo ya existe",Toast.LENGTH_LONG).show();
+                    Toast.makeText(RegistroClienteActivity.this,"Este correo ya existe",Toast.LENGTH_LONG).show();
                 }
             }
         });
@@ -106,9 +105,11 @@ public class RegistroActivity extends AppCompatActivity {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()){
-                    Toast.makeText(RegistroActivity.this, "Cliente registrado", Toast.LENGTH_SHORT).show();
+                    Intent intent=new Intent(RegistroClienteActivity.this, MapClienteActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    startActivity(intent);
                 }else{
-                    Toast.makeText(RegistroActivity.this, "Error cleinte ya registrado", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(RegistroClienteActivity.this, "Error cleinte ya registrado", Toast.LENGTH_SHORT).show();
                 }
             }
         });

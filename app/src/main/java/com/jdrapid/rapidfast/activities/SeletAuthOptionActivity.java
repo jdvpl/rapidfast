@@ -1,19 +1,22 @@
-package com.jdrapid.rapidfast;
+package com.jdrapid.rapidfast.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
+import com.jdrapid.rapidfast.R;
+import com.jdrapid.rapidfast.activities.cliente.RegistroClienteActivity;
+import com.jdrapid.rapidfast.activities.conductor.RegistroConductorActivity;
 import com.jdrapid.rapidfast.includes.ToolBar;
 
 
 public class SeletAuthOptionActivity extends AppCompatActivity {
     Button BtnLogin,BtnRegistro;
-    Toolbar toolbar;
+    SharedPreferences preferences;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -21,6 +24,7 @@ public class SeletAuthOptionActivity extends AppCompatActivity {
 
         ToolBar.mostrar(this,getString(R.string.seleccionar_accion),true);
 
+        preferences=getApplicationContext().getSharedPreferences("typeUser",MODE_PRIVATE);
 
         BtnLogin=findViewById(R.id.BtnLogin);
         BtnRegistro=findViewById(R.id.BtnRegistro);
@@ -44,7 +48,14 @@ public class SeletAuthOptionActivity extends AppCompatActivity {
         startActivity(intent);
     }
     private void iraRegister() {
-        Intent intent1=new Intent(SeletAuthOptionActivity.this,RegistroActivity.class);
-        startActivity(intent1);
+        String tipoUsuario=preferences.getString("user","");
+        if (tipoUsuario.equals("cliente")){
+            Intent intent1=new Intent(SeletAuthOptionActivity.this, RegistroClienteActivity.class);
+            startActivity(intent1);
+        }else {
+            Intent intent1=new Intent(SeletAuthOptionActivity.this, RegistroConductorActivity.class);
+            startActivity(intent1);
+        }
+
     }
 }
