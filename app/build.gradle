@@ -48,6 +48,10 @@ dependencies {
     implementation 'com.github.d-max:spots-dialog:1.1@aar'
 //    google maps
     implementation 'com.google.android.gms:play-services-maps:16.1.0'
+//    ubicacion actual
+    implementation 'com.google.android.gms:play-services-location:16.0.0'
+//    alamacenar la ubicacion el firebase
+    implementation 'com.firebase:geofire-android:2.2.0'
 
 }
 

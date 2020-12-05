@@ -89,6 +89,7 @@ public class LoginActivity extends AppCompatActivity {
                            }else {
                                Intent intent=new Intent(LoginActivity.this, MapConductorActivity.class);
                                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                               startActivity(intent);
                            }
                         }else{
                             Toast.makeText(LoginActivity.this, LoginActivityemailYpassworsIncorectos,Toast.LENGTH_LONG).show();

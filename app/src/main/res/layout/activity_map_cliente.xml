@@ -6,14 +6,18 @@
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
     tools:context=".activities.cliente.MapClienteActivity">
-    <Button
-        android:id="@+id/btnlogout"
+
+
+
+    <fragment
+        android:id="@+id/map"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Cerrar Sesion"
-        android:gravity="center"
-        android:textStyle="bold"
-        android:textSize="20sp"
-        android:layout_gravity="center"/>
+        android:layout_height="match_parent"
+        android:name="com.google.android.gms.maps.SupportMapFragment"/>
+    <include
+        android:id="@+id/toolbar"
+        layout="@layout/toolbar" >
+
+    </include>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
