@@ -21,4 +21,7 @@ public class ClienteProvider {
         map.put("Correo",cliente.getCorreo());
         return reference.child(cliente.getId()).setValue(map);
     }
+    public DatabaseReference getCliente(String idCliente){
+        return reference.child(idCliente);
+    }
 }

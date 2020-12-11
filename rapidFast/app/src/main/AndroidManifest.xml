@@ -2,9 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.jdrapid.rapidfast">
 
-
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
 
     <application
         android:allowBackup="true"
@@ -13,11 +13,29 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.RapidFast">
-        <activity android:name=".activities.conductor.MapConductorActivity"></activity>
+        <activity android:name=".activities.conductor.MapConductorSolicitud"></activity>
+        <activity android:name=".activities.cliente.MapClienteReservaActivity" />
 
+        <receiver
+            android:name=".receivers.AceptReceiver"
+            android:enabled="true" />
+        <receiver
+            android:name=".receivers.CancelReceiver"
+            android:enabled="true" />
+
+        <service android:name=".services.MyFirebaseNotificacionCliente">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
+        <activity android:name=".activities.cliente.SoliciarConductorActivity" />
+        <activity
+            android:name=".activities.cliente.DetallePedirConductor"
+            android:parentActivityName=".activities.cliente.MapClienteActivity" />
+        <activity android:name=".activities.conductor.MapConductorActivity" />
         <activity android:name=".activities.cliente.MapClienteActivity" />
         <activity android:name=".activities.conductor.RegistroConductorActivity" />
-
         <activity
             android:name=".activities.LoginActivity"
             android:parentActivityName=".activities.SeletAuthOptionActivity" />
@@ -27,7 +45,6 @@
         <activity
             android:name=".activities.SeletAuthOptionActivity"
             android:parentActivityName=".activities.MainActivity" />
-
         <activity android:name=".activities.MainActivity" />
         <activity
             android:name=".activities.SplashActivity"
@@ -38,12 +55,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <meta-data android:name="com.google.android.geo.API_KEY" android:value="@string/google_maps_key"/>
 
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="@string/google_maps_key" />
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
-
     </application>
 
 </manifest>
