@@ -217,7 +217,7 @@ public class SoliciarConductorActivity extends AppCompatActivity {
                     );
                     map.put("idCliente",authProvider.getId());
 
-                    FCMBody fcmBody=new FCMBody(token,"high",map);
+                    FCMBody fcmBody=new FCMBody(token,"high","450s",map);
 
                     notificationProvider.sendNotificacion(fcmBody).enqueue(new Callback<FCMResponse>() {
                         @Override

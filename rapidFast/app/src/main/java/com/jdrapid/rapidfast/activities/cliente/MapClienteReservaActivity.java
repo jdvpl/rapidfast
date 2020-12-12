@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
@@ -72,7 +73,7 @@ public class MapClienteReservaActivity extends AppCompatActivity implements OnMa
 
 //    textview
     private TextView txtNombreConductor,txtEmailConductor;
-    private TextView txtOrigenConductor,txtDestinoConductor;
+    private TextView txtOrigenConductor,txtDestinoConductor,txtEstadoSolicitud;
 
 private LatLng mOriginLatlng,mDestinoLatlng;
     private GoogleApiProvider googleApiProvider;
@@ -80,6 +81,8 @@ private LatLng mOriginLatlng,mDestinoLatlng;
     private PolylineOptions polylineOptions;
     private ValueEventListener valueEventListener;
     private String midCondutor;
+    private ValueEventListener lsitenerEstado;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -96,7 +99,7 @@ private LatLng mOriginLatlng,mDestinoLatlng;
 //        inicializqar los txtviews
         txtNombreConductor=findViewById(R.id.txtconductornombne);
         txtEmailConductor=findViewById(R.id.txtemaiconductor);
-
+        txtEstadoSolicitud=findViewById(R.id.txtEstadoSolicitud);
         txtOrigenConductor=findViewById(R.id.txtConductorOrigen);
         txtDestinoConductor=findViewById(R.id.txtConductorDestino);
 
@@ -104,9 +107,50 @@ private LatLng mOriginLatlng,mDestinoLatlng;
         if (!Places.isInitialized()){
             Places.initialize(getApplicationContext(),getResources().getString(R.string.google_maps_key));
         }
+        obtenerEstado();
         obtenerClienteSolicitudInfo();
 
     }
+
+    private void obtenerEstado() {
+        lsitenerEstado= clienteReservaProvider.getEstado(authProvider.getId()).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()){
+                    String estado=snapshot.getValue().toString();
+
+                    if (estado.equals("Aceptado")){
+                        txtEstadoSolicitud.setText("Estado : Aceptado");
+                    }
+                    if (estado.equals("Iniciar")){
+                        txtEstadoSolicitud.setText("Estado : Viaje Iniciado");
+                        comenzarSolicitud();
+                    }else if (estado.equals("Finalizar")){
+                        txtEstadoSolicitud.setText("Estado : Viaje Finalizado");
+                        terminarSolicitud();
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
+    private void terminarSolicitud() {
+        Intent intent=new Intent(MapClienteReservaActivity.this,CalificarConductorActivity.class);
+        startActivity(intent);
+        finish();
+    }
+
+    private void comenzarSolicitud() {
+        nMap.addMarker(new MarkerOptions().position(mDestinoLatlng).title("Destino").icon(BitmapDescriptorFactory.fromResource(R.drawable.mappinverde)));
+        nMap.clear();
+        DibujarRuta(mDestinoLatlng);
+    }
+
     private void obtenerClienteSolicitudInfo() {
         clienteReservaProvider.getClienteSolicitud(authProvider.getId()).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -177,7 +221,7 @@ private LatLng mOriginLatlng,mDestinoLatlng;
                         nMap.animateCamera(CameraUpdateFactory.newCameraPosition(
                                 new CameraPosition.Builder().target(mDriverLatlng).zoom(15f).build()
                         ));
-                        DibujarRuta();
+                        DibujarRuta(mOriginLatlng);
                     }
 
                 }
@@ -190,8 +234,8 @@ private LatLng mOriginLatlng,mDestinoLatlng;
         });
     }
 
-    private void DibujarRuta(){
-        googleApiProvider.getDirecciones(mDriverLatlng,mOriginLatlng).enqueue(new Callback<String>() {
+    private void DibujarRuta(LatLng latLng){
+        googleApiProvider.getDirecciones(mDriverLatlng,latLng).enqueue(new Callback<String>() {
             @Override
             public void onResponse(Call<String> call, Response<String> response) {
                 try {
@@ -238,6 +282,9 @@ private LatLng mOriginLatlng,mDestinoLatlng;
         super.onDestroy();
         if (valueEventListener!=null){
             geofireProvider.obtenerUbicacionConductor(midCondutor).removeEventListener(valueEventListener);
+        }
+        if (lsitenerEstado !=null){
+            clienteReservaProvider.getEstado(authProvider.getId()).removeEventListener(lsitenerEstado);
         }
     }
 

@@ -43,24 +43,32 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.maps.model.SquareCap;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
 import com.jdrapid.rapidfast.R;
 import com.jdrapid.rapidfast.activities.cliente.DetallePedirConductor;
+import com.jdrapid.rapidfast.activities.cliente.SoliciarConductorActivity;
 import com.jdrapid.rapidfast.includes.ToolBar;
+import com.jdrapid.rapidfast.models.ClientBooking;
+import com.jdrapid.rapidfast.models.FCMBody;
+import com.jdrapid.rapidfast.models.FCMResponse;
 import com.jdrapid.rapidfast.providers.AuthProvider;
 import com.jdrapid.rapidfast.providers.ClienteProvider;
 import com.jdrapid.rapidfast.providers.ClienteReservaProvider;
 import com.jdrapid.rapidfast.providers.GeofireProvider;
 import com.jdrapid.rapidfast.providers.GoogleApiProvider;
+import com.jdrapid.rapidfast.providers.NotificationProvider;
 import com.jdrapid.rapidfast.providers.TokenProvider;
 import com.jdrapid.rapidfast.utils.DecodePoints;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -103,6 +111,9 @@ public class MapConductorSolicitud extends AppCompatActivity implements OnMapRea
     private Button btnInicarViaje,BtnFinalizarViaje;
     private boolean esPrimerVez=true;
     private boolean cercaALCLiente=false;
+
+    //    notificaciones
+    private NotificationProvider notificationProvider;
 
     LocationCallback locationCallback = new LocationCallback() {
         @Override
@@ -164,6 +175,7 @@ public class MapConductorSolicitud extends AppCompatActivity implements OnMapRea
         mExtraClienteId=getIntent().getStringExtra("idCliente");
 //        dibujar mapa
         googleApiProvider=new GoogleApiProvider(MapConductorSolicitud.this);
+        notificationProvider=new NotificationProvider();
         obtenerCliente();
 
         btnInicarViaje.setOnClickListener(new View.OnClickListener() {
@@ -187,6 +199,11 @@ public class MapConductorSolicitud extends AppCompatActivity implements OnMapRea
     private void finalizarBooking() {
         clienteReservaProvider.actualizarEstado(mExtraClienteId,"Finalizar");
         Intent intent=new Intent(MapConductorSolicitud.this,CalificacionClienteActivity.class);
+        EnviarNotificacion("Viaje Finalizado");
+        if (fusedLocation!=null){
+            fusedLocation.removeLocationUpdates(locationCallback);
+        }
+        geofireProvider.EliminarUbicacion(authProvider.getId());
         startActivity(intent);
         finish();
     }
@@ -198,6 +215,7 @@ public class MapConductorSolicitud extends AppCompatActivity implements OnMapRea
         nMap.clear();
         nMap.addMarker(new MarkerOptions().position(mDestinoLatlng).title("Destino").icon(BitmapDescriptorFactory.fromResource(R.drawable.mappinverde)));
         DibujarRuta(mDestinoLatlng);
+        EnviarNotificacion("Viaje Iniciado");
     }
     private double obtenerDistanciaConClien(LatLng ubicacionCliente,LatLng ubicacionConductor){
         double distancia=0;
@@ -453,4 +471,49 @@ public class MapConductorSolicitud extends AppCompatActivity implements OnMapRea
             }
         }
     }
+
+    private void EnviarNotificacion(String estado) {
+        tokenProvider.getToken(mExtraClienteId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()){
+                    String token=dataSnapshot.child("token").getValue().toString();
+                    Map<String,String> map=new HashMap<>();
+                    map.put("title","ESTADO DE TU VIAJE");
+                    map.put("body",
+                            "Tu estado del viaje es: "+estado);
+                    FCMBody fcmBody=new FCMBody(token,"high","4500s",map);
+
+                    notificationProvider.sendNotificacion(fcmBody).enqueue(new Callback<FCMResponse>() {
+                        @Override
+                        public void onResponse(Call<FCMResponse> call, Response<FCMResponse> response) {
+                            if (response.body()!=null){
+                                if (response.body().getSuccess()!=1){
+                                    Toast.makeText(MapConductorSolicitud.this, "No se pudo enviar notificacion", Toast.LENGTH_SHORT).show();
+                                }
+                            }else {
+                                Toast.makeText(MapConductorSolicitud.this, "No se pudo enviar notificacion", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<FCMResponse> call, Throwable t) {
+                            Log.d("ErrorKisamado","Error 2527: "+t.getMessage());
+
+                        }
+                    });
+                }else {
+                    Toast.makeText(MapConductorSolicitud.this, "No se pudo enviar la notificacion por que el conductor se desconecto", Toast.LENGTH_SHORT).show();
+                }
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
+    }
+
 }
