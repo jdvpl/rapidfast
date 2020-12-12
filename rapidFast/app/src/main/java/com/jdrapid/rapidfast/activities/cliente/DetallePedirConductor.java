@@ -42,14 +42,17 @@ public class DetallePedirConductor extends AppCompatActivity implements OnMapRea
 //
     private double mExtraorigenLat,mExtraorigenLong,mExtraDestinoLat,mExtraDestinoLon;
     private String mExtraOrigen,mExtraDestino;
+
     private LatLng mOriginLatlng,mDestinoLatlng;
+    private GoogleApiProvider googleApiProvider;
+    private List<LatLng> listaPoligonos;
+    private PolylineOptions polylineOptions;
 
     TextView TxtOrigen,TxtDestino,TxtTiempo,TxtDistancia;
     private Button BtnPedirConductor;
 
-    private GoogleApiProvider googleApiProvider;
-    private List<LatLng> listaPoligonos;
-    private PolylineOptions polylineOptions;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

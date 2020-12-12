@@ -27,6 +27,10 @@ public class GeofireProvider {
         geoQuery.removeAllListeners();
         return geoQuery;
     }
+    public DatabaseReference obtenerUbicacionConductor(String idConductor){
+        return mDatabse.child(idConductor).child("l");
+    }
+
     public DatabaseReference ConductoresTrabajando(String idConductor){
         return FirebaseDatabase.getInstance().getReference().child("Conductores_trabajando").child(idConductor);
     }

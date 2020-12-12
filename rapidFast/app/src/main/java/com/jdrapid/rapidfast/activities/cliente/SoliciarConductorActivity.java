@@ -27,7 +27,9 @@ import com.jdrapid.rapidfast.models.ClientBooking;
 import com.jdrapid.rapidfast.models.FCMBody;
 import com.jdrapid.rapidfast.models.FCMResponse;
 import com.jdrapid.rapidfast.providers.AuthProvider;
+import com.jdrapid.rapidfast.providers.ClienteProvider;
 import com.jdrapid.rapidfast.providers.ClienteReservaProvider;
+import com.jdrapid.rapidfast.providers.ConductorProvider;
 import com.jdrapid.rapidfast.providers.GeofireProvider;
 import com.jdrapid.rapidfast.providers.GoogleApiProvider;
 import com.jdrapid.rapidfast.providers.NotificationProvider;
@@ -71,8 +73,11 @@ public class SoliciarConductorActivity extends AppCompatActivity {
 //    authrovider
     private AuthProvider authProvider;
     private GoogleApiProvider googleApiProvider;
+    private ConductorProvider conductorProvider;
+    private ClienteProvider clienteProvider;
 //    escuhador
     private ValueEventListener mlistener;
+    private String NombreCOnductor,NombreCliente;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,6 +104,9 @@ public class SoliciarConductorActivity extends AppCompatActivity {
 
         notificationProvider=new NotificationProvider();
         clienteReservaProvider=new ClienteReservaProvider();
+
+        conductorProvider=new ConductorProvider();
+        clienteProvider=new ClienteProvider();
         authProvider=new AuthProvider();
 
 
@@ -155,6 +163,7 @@ public class SoliciarConductorActivity extends AppCompatActivity {
             }
         });
     }
+
     private void CrearSolicitudCliente(){
         googleApiProvider.getDirecciones(origenLatlgn,jConductorEncontradolatlng).enqueue(new Callback<String>() {
             @Override
@@ -262,6 +271,8 @@ public class SoliciarConductorActivity extends AppCompatActivity {
         });
 
     }
+
+
 
     private void RevisarEstadoSolicitud() {
         mlistener=clienteReservaProvider.getEstado(authProvider.getId()).addValueEventListener(new ValueEventListener() {

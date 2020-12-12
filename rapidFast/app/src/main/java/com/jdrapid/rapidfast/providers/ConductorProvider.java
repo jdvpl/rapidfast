@@ -16,4 +16,7 @@ public class ConductorProvider {
     public Task<Void> create(Conductor conductor){
         return reference.child(conductor.getId()).setValue(conductor);
     }
+    public DatabaseReference getConductor(String idConductor){
+        return reference.child(idConductor);
+    }
 }

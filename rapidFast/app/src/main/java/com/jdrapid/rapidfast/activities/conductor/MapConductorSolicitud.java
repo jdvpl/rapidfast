@@ -13,6 +13,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Build;
@@ -20,6 +21,7 @@ import android.os.Bundle;
 import android.os.Looper;
 import android.provider.Settings;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -35,18 +37,34 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.JointType;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.android.gms.maps.model.SquareCap;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
 import com.jdrapid.rapidfast.R;
+import com.jdrapid.rapidfast.activities.cliente.DetallePedirConductor;
 import com.jdrapid.rapidfast.includes.ToolBar;
 import com.jdrapid.rapidfast.providers.AuthProvider;
 import com.jdrapid.rapidfast.providers.ClienteProvider;
+import com.jdrapid.rapidfast.providers.ClienteReservaProvider;
 import com.jdrapid.rapidfast.providers.GeofireProvider;
+import com.jdrapid.rapidfast.providers.GoogleApiProvider;
 import com.jdrapid.rapidfast.providers.TokenProvider;
+import com.jdrapid.rapidfast.utils.DecodePoints;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class MapConductorSolicitud extends AppCompatActivity implements OnMapReadyCallback {
 
@@ -65,17 +83,26 @@ public class MapConductorSolicitud extends AppCompatActivity implements OnMapRea
     private final static int SETTINGS_REQUEST_CODE = 2;
 
     private Marker marker;
-
-
     //    base de datos para guardar ubicacion
     private LatLng latLngUbicacionActual;
     private ValueEventListener mlistener;
 
 //    textview
     private TextView txtNombreCliente,txtEmailCliente;
+    private TextView txtOrigenCliente,txtDestinoCliente;
     private String mExtraClienteId;
 //    provider del cleinte
     private ClienteProvider clienteProvider;
+    private ClienteReservaProvider clienteReservaProvider;
+
+//    poligonos
+    private LatLng mOriginLatlng,mDestinoLatlng;
+    private GoogleApiProvider googleApiProvider;
+    private List<LatLng> listaPoligonos;
+    private PolylineOptions polylineOptions;
+    private Button btnInicarViaje,BtnFinalizarViaje;
+    private boolean esPrimerVez=true;
+    private boolean cercaALCLiente=false;
 
     LocationCallback locationCallback = new LocationCallback() {
         @Override
@@ -98,6 +125,11 @@ public class MapConductorSolicitud extends AppCompatActivity implements OnMapRea
 
                     ));
                     ActualizarUbicacion();
+
+                    if (esPrimerVez){
+                        esPrimerVez=false;
+                        obtenerClienteSolicitudInfo();
+                    }
 
                 }
             }
@@ -122,22 +154,83 @@ public class MapConductorSolicitud extends AppCompatActivity implements OnMapRea
         txtNombreCliente=findViewById(R.id.txtclientenombne);
         txtEmailCliente=findViewById(R.id.txtemailcliente);
 
+        txtOrigenCliente=findViewById(R.id.txtclienteOrigen);
+        txtDestinoCliente=findViewById(R.id.txtclienteDestino);
+        btnInicarViaje=findViewById(R.id.btnInicarViaje);
+        BtnFinalizarViaje=findViewById(R.id.btnFinalizarViaje);
+
+        clienteReservaProvider=new ClienteReservaProvider();
+
         mExtraClienteId=getIntent().getStringExtra("idCliente");
-        obtenerClienteSolicitud();
+//        dibujar mapa
+        googleApiProvider=new GoogleApiProvider(MapConductorSolicitud.this);
+        obtenerCliente();
+
+        btnInicarViaje.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (cercaALCLiente){
+                    inicarBooking();
+                }else {
+                    Toast.makeText(MapConductorSolicitud.this, "Debes estar mas cerca al cliente", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+        BtnFinalizarViaje.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                finalizarBooking();
+            }
+        });
+    }
+
+    private void finalizarBooking() {
+        clienteReservaProvider.actualizarEstado(mExtraClienteId,"Finalizar");
+        Intent intent=new Intent(MapConductorSolicitud.this,CalificacionClienteActivity.class);
+        startActivity(intent);
+        finish();
+    }
+
+    private void inicarBooking() {
+        clienteReservaProvider.actualizarEstado(mExtraClienteId,"Iniciar");
+        btnInicarViaje.setVisibility(View.GONE);
+        BtnFinalizarViaje.setVisibility(View.VISIBLE);
+        nMap.clear();
+        nMap.addMarker(new MarkerOptions().position(mDestinoLatlng).title("Destino").icon(BitmapDescriptorFactory.fromResource(R.drawable.mappinverde)));
+        DibujarRuta(mDestinoLatlng);
+    }
+    private double obtenerDistanciaConClien(LatLng ubicacionCliente,LatLng ubicacionConductor){
+        double distancia=0;
+        Location locationCleinte=new Location("");
+        Location locationConductor=new Location("");
+        locationCleinte.setLatitude(ubicacionCliente.latitude);
+        locationCleinte.setLongitude(ubicacionCliente.longitude);
+        locationConductor.setLatitude(ubicacionConductor.latitude);
+        locationConductor.setLongitude(ubicacionConductor.longitude);
+        distancia=locationCleinte.distanceTo(locationConductor);
+        return distancia;
 
     }
 
-    private void obtenerClienteSolicitud() {
-        clienteProvider.getCliente(mExtraClienteId).addListenerForSingleValueEvent(new ValueEventListener() {
+
+    private void obtenerClienteSolicitudInfo() {
+        clienteReservaProvider.getClienteSolicitud(mExtraClienteId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()){
-                    String email=snapshot.child("Correo").getValue().toString();
-                    String nombre=snapshot.child("Nombre").getValue().toString();
+                    String destino=snapshot.child("destino").getValue().toString();
+                    String origen=snapshot.child("origen").getValue().toString();
+                    double destinoLat= Double.parseDouble(snapshot.child("destinoLat").getValue().toString());
+                    double destinoLon= Double.parseDouble(snapshot.child("destinoLong").getValue().toString());
+                    double origenLat= Double.parseDouble(snapshot.child("origenLat").getValue().toString());
+                    double origenLong= Double.parseDouble(snapshot.child("origenLong").getValue().toString());
 
-                    txtEmailCliente.setText(email);
-                    Log.d("usuario", "onDataChange: "+email);
-                    Log.d("usuario", "onDataChange: "+nombre);
+                    mOriginLatlng=new LatLng(origenLat,origenLong);
+                    mDestinoLatlng=new LatLng(destinoLat,destinoLon);
+                    txtOrigenCliente.setText("Recoger en: "+origen);
+                    txtDestinoCliente.setText("Destino: "+destino);
+                    nMap.addMarker(new MarkerOptions().position(mOriginLatlng).title("Recoger Aqui").icon(BitmapDescriptorFactory.fromResource(R.drawable.mappinrojo)));
+                    DibujarRuta(mOriginLatlng);
                 }
             }
 
@@ -148,9 +241,86 @@ public class MapConductorSolicitud extends AppCompatActivity implements OnMapRea
         });
     }
 
+    private void obtenerCliente() {
+        clienteProvider.getCliente(mExtraClienteId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()){
+                    String email=snapshot.child("Correo").getValue().toString();
+                    String nombre=snapshot.child("Nombre").getValue().toString();
+
+                    txtNombreCliente.setText(nombre);
+                    txtEmailCliente.setText(email);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+    private void DibujarRuta(LatLng latLng){
+        googleApiProvider.getDirecciones(latLngUbicacionActual,latLng).enqueue(new Callback<String>() {
+            @Override
+            public void onResponse(Call<String> call, Response<String> response) {
+                try {
+                    JSONObject jsonObject=new JSONObject(response.body());
+                    JSONArray jsonArray=jsonObject.getJSONArray("routes");
+                    JSONObject ruta=jsonArray.getJSONObject(0);
+                    JSONObject poligonos=ruta.getJSONObject("overview_polyline");
+                    String puntos=poligonos.getString("points");
+                    listaPoligonos= DecodePoints.decodePoly(puntos);
+                    polylineOptions=new PolylineOptions();
+                    polylineOptions.color(Color.BLUE);
+                    polylineOptions.width(20f);
+                    polylineOptions.startCap(new SquareCap());
+                    polylineOptions.jointType(JointType.ROUND);
+                    polylineOptions.addAll(listaPoligonos);
+                    nMap.addPolyline(polylineOptions);
+
+//                    para obtener el tiempo de la api ejemplo: https://maps.googleapis.com/maps/api/directions/json?mode=driving&transit_routing_preferences=less_driving&origin=1.2034717,-77.2922318&destination=1.2039062,-77.2927302&departure_time=1603143184104&traffic_model=best_guess&key=AIzaSyAKltRdYeGz-VViXHEaYu00KR7dWirLdv8
+                    JSONArray legs=ruta.getJSONArray("legs");
+                    JSONObject leg=legs.getJSONObject(0);
+                    JSONObject distancia=leg.getJSONObject("distance");
+                    JSONObject duracion=leg.getJSONObject("duration");
+
+//                    obtener el string de la api
+
+                    String Distancia=distancia.getString("text");
+                    String Duracion=duracion.getString("text");
+
+
+                }catch (Exception e){
+                    Log.d("Error","Jiren: "+e.getMessage());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<String> call, Throwable t) {
+
+            }
+        });
+    }
+
     private void ActualizarUbicacion(){
         if (authProvider.existeSesion() && latLngUbicacionActual !=null){
             geofireProvider.guardarUbicacion(authProvider.getId(),latLngUbicacionActual);
+            if (!cercaALCLiente){
+                if (mOriginLatlng!=null && latLngUbicacionActual!=null){
+                    double distancia=obtenerDistanciaConClien(mOriginLatlng,latLngUbicacionActual);
+                    if (distancia<=200){
+                        btnInicarViaje.setEnabled(true);
+                        cercaALCLiente=true;
+                        int distanciacon= (int) distancia;
+                        Toast.makeText(this, "Esta Cerca a la posicion del cliente estas a "+distanciacon+" metros", Toast.LENGTH_SHORT).show();
+                    }
+
+                }
+
+
+            }
+
         }
 
     }

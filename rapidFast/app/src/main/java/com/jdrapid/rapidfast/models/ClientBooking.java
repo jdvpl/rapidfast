@@ -43,6 +43,7 @@ public class ClientBooking {
         this.idConductor = idConductor;
     }
 
+
     public String getDestino() {
         return Destino;
     }
