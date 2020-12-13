@@ -19,7 +19,7 @@
         <ImageView
             android:layout_width="100dp"
             android:layout_height="100dp"
-            android:src="@drawable/login"/>
+            android:src="@drawable/imagen1"/>
 
         <!--    correo-->
         <LinearLayout
@@ -79,7 +79,7 @@
             android:layout_height="wrap_content"
             android:text="@string/IniciarSesion"
             android:background="@drawable/boton_redondeado"
-            android:backgroundTint="@color/colorPrimaryDark"
+            android:backgroundTint="@color/black"
             android:textColor="@color/white"
             android:layout_marginHorizontal="20dp"
             android:layout_marginTop="15dp"/>

@@ -1,6 +1,7 @@
 package com.jdrapid.rapidfast.services;
 
 import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -50,7 +51,12 @@ public class MyFirebaseNotificacionCliente  extends FirebaseMessagingService {
                     String distancia=data.get("distancia");
                     MostrarNotificacionesOreoAcciones(titulo,body,idCliente);
                     MostarNotificacionaActivty(idCliente,origen,destino,tiempo,distancia);
-                }else {
+                }else  if (titulo.contains("VIAJE CANCELADO")){
+                    NotificationManager notificationManager=(NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                    notificationManager.cancel(2);
+                    MostrarNotificacionesOreo(titulo, body);
+                }
+                else {
                     MostrarNotificacionesOreo(titulo, body);
                 }
             }else {
@@ -62,7 +68,12 @@ public class MyFirebaseNotificacionCliente  extends FirebaseMessagingService {
                     String distancia=data.get("distancia");
                     mostrarNotioficacionAccion(titulo,body,idCliente);
                     MostarNotificacionaActivty(idCliente,origen,destino,tiempo,distancia);
-                }else {
+                }else  if (titulo.contains("VIAJE CANCELADO")){
+                    NotificationManager notificationManager=(NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                    notificationManager.cancel(2);
+                    mostrarNotioficacion(titulo, body);
+                }
+                else {
                     mostrarNotioficacion(titulo, body);
                 }
             }

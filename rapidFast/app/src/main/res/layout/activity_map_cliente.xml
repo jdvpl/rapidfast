@@ -68,7 +68,7 @@
         android:text="SOLICITAR VIJAE"
         android:layout_marginBottom="20dp"
         android:layout_gravity="bottom"
-        android:backgroundTint="@color/colorPrimaryDark"
+        android:backgroundTint="@color/black"
         android:textColor="@color/white"
         android:layout_marginHorizontal="60dp"
         android:textStyle="bold"/>

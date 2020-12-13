@@ -18,7 +18,7 @@ import com.jdrapid.rapidfast.activities.cliente.MapClienteActivity;
 import com.jdrapid.rapidfast.activities.conductor.MapConductorActivity;
 
 public class SplashActivity extends AppCompatActivity {
-    private static int SPLASH_SCREEN=1000;
+    private static int SPLASH_SCREEN=2000;
 
 //     variables
     Animation TopAnimation,BottomAnimation;
@@ -35,13 +35,6 @@ public class SplashActivity extends AppCompatActivity {
         TopAnimation= AnimationUtils.loadAnimation(this,R.anim.top_animacion);
         BottomAnimation= AnimationUtils.loadAnimation(this,R.anim.bottom_animacion);
 
-        imageView=findViewById(R.id.spashcarro);
-        logo=findViewById(R.id.txtLogo);
-        textto=findViewById(R.id.txtInicio);
-
-        imageView.setAnimation(TopAnimation);
-        logo.setAnimation(BottomAnimation);
-        textto.setAnimation(BottomAnimation);
 
         preferences=getApplicationContext().getSharedPreferences("typeUser",MODE_PRIVATE);
 

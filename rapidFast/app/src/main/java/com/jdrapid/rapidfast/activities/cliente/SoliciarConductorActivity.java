@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -108,12 +109,28 @@ public class SoliciarConductorActivity extends AppCompatActivity {
         conductorProvider=new ConductorProvider();
         clienteProvider=new ClienteProvider();
         authProvider=new AuthProvider();
-
+        BtnCancelar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                CancelarSolicitud();
+            }
+        });
 
 
 
         ObtenerConductoresCerca();
     }
+
+    private void CancelarSolicitud() {
+        clienteReservaProvider.borrar(authProvider.getId()).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                EnviarNotificacionCancelacion();
+
+            }
+        });
+    }
+
     private void ObtenerConductoresCerca(){
         geofireProvider.ConductoresActivos(origenLatlgn,RadioBusqueda).addGeoQueryEventListener(new GeoQueryEventListener() {
             @Override
@@ -274,6 +291,55 @@ public class SoliciarConductorActivity extends AppCompatActivity {
             }
         });
 
+    }
+    private void EnviarNotificacionCancelacion(){
+        tokenProvider.getToken(IDConductorEncontrado).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if (dataSnapshot.exists()){
+                    String token=dataSnapshot.child("token").getValue().toString();
+                    Map<String,String> map=new HashMap<>();
+                    map.put("title","VIAJE CANCELADO");
+                    map.put("body",
+                            "El cliente cancelo la solicitud"
+                    );
+                    FCMBody fcmBody=new FCMBody(token,"high","450s",map);
+
+                    notificationProvider.sendNotificacion(fcmBody).enqueue(new Callback<FCMResponse>() {
+                        @Override
+                        public void onResponse(Call<FCMResponse> call, Response<FCMResponse> response) {
+                            if (response.body()!=null){
+                                if (response.body().getSuccess()==1){
+                                    Toast.makeText(SoliciarConductorActivity.this, "La solicitud se cancelo correctamente", Toast.LENGTH_SHORT).show();
+                                    Intent intent=new Intent(SoliciarConductorActivity.this,MapClienteActivity.class);
+                                    startActivity(intent);
+                                    finish();
+                                }else {
+                                    Log.d("ErrorKisamado","Error 1024521: "+token);
+                                    Toast.makeText(SoliciarConductorActivity.this, "No se pudo enviar notificacion", Toast.LENGTH_SHORT).show();
+                                }
+                            }else {
+                                Toast.makeText(SoliciarConductorActivity.this, "No se pudo enviar notificacion", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<FCMResponse> call, Throwable t) {
+                            Log.d("ErrorKisamado","Error 2527: "+t.getMessage());
+
+                        }
+                    });
+                }else {
+                    Toast.makeText(SoliciarConductorActivity.this, "No se pudo enviar la notificacion por que el conductor se desconecto", Toast.LENGTH_SHORT).show();
+                }
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
     }
 
 

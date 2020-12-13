@@ -1,16 +1,23 @@
 package com.jdrapid.rapidfast.activities.conductor;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
+import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.ValueEventListener;
 import com.jdrapid.rapidfast.R;
 import com.jdrapid.rapidfast.providers.AuthProvider;
 import com.jdrapid.rapidfast.providers.ClienteReservaProvider;
@@ -18,7 +25,7 @@ import com.jdrapid.rapidfast.providers.GeofireProvider;
 
 public class NotificacionSolicitudActivity extends AppCompatActivity {
 
-    private TextView TxtNotificacionOrigen,TxtNotificacionDestino,TxtNotificacionTiempo,TxtNotificacionDistancia;
+    private TextView TxtNotificacionOrigen,TxtNotificacionDestino,TxtNotificacionTiempo,TxtNotificacionDistancia,TxtTienCoontador;
     private Button btnAceptarSolicitud,btnCancelarSolicitud;
 
     private ClienteReservaProvider clienteReservaProvider;
@@ -26,6 +33,29 @@ public class NotificacionSolicitudActivity extends AppCompatActivity {
     private AuthProvider authProvider;
     private String mExtraClienteId,mExtraOrigen,MextraDestino,MextraDistacia,mExtraTiempo;
 
+    private MediaPlayer mediaPlayer;
+    private int contador=15;
+    private Handler handler;
+    Runnable runnable=new Runnable() {
+        @Override
+        public void run() {
+            contador-=1;
+            TxtTienCoontador.setText(String.valueOf(contador));
+            if (contador>0){
+
+                iniciarTiempo();
+            }else {
+                CancelarViaje();
+            }
+        }
+    };
+    private ValueEventListener listener;
+
+    private void iniciarTiempo() {
+        handler=new Handler();
+        handler.postDelayed(runnable,1000);
+
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,6 +65,7 @@ public class NotificacionSolicitudActivity extends AppCompatActivity {
         TxtNotificacionDestino=findViewById(R.id.DestinoNotificacion);
         TxtNotificacionTiempo=findViewById(R.id.notificacionTiempo);
         TxtNotificacionDistancia=findViewById(R.id.notificacionDistancia);
+        TxtTienCoontador=findViewById(R.id.contadoTiempo);
 
         btnAceptarSolicitud=findViewById(R.id.btnAceptarSolicitud);
         btnCancelarSolicitud=findViewById(R.id.btnCancelarSolicitud);
@@ -44,12 +75,16 @@ public class NotificacionSolicitudActivity extends AppCompatActivity {
         MextraDestino=getIntent().getStringExtra("destino");
         mExtraTiempo=getIntent().getStringExtra("tiempo");
         MextraDistacia=getIntent().getStringExtra("distancia");
+        mediaPlayer=MediaPlayer.create(this,R.raw.taxi);
+        mediaPlayer.setLooping(true);
+        clienteReservaProvider=new ClienteReservaProvider();
 
 //        asignarle los valores
         TxtNotificacionOrigen.setText(mExtraOrigen);
         TxtNotificacionDestino.setText(MextraDestino);
         TxtNotificacionTiempo.setText(mExtraTiempo);
         TxtNotificacionDistancia.setText(MextraDistacia);
+
 
         getWindow().addFlags(
                 WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON |
@@ -58,7 +93,8 @@ public class NotificacionSolicitudActivity extends AppCompatActivity {
                 WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
 
         );
-
+        iniciarTiempo();
+        ValidarsiCanceloCliente();
         btnAceptarSolicitud.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -74,10 +110,30 @@ public class NotificacionSolicitudActivity extends AppCompatActivity {
         });
 
     }
+    private void ValidarsiCanceloCliente(){
+        listener=clienteReservaProvider.getClienteSolicitud(mExtraClienteId).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (!snapshot.exists()){
+                    Toast.makeText(NotificacionSolicitudActivity.this, "El cliente cancelo el viaje", Toast.LENGTH_LONG).show();
+                    if (handler!=null)handler.removeCallbacks(runnable);
+                    Intent intent=new Intent(NotificacionSolicitudActivity.this,MapConductorActivity.class);
+                    startActivity(intent);
+                    finish();
+
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
 
     private void CancelarViaje() {
+        if (handler!=null)handler.removeCallbacks(runnable);
 
-        clienteReservaProvider=new ClienteReservaProvider();
         clienteReservaProvider.actualizarEstado(mExtraClienteId,"Cancelado");
 
         NotificationManager notificationManager=(NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
@@ -88,6 +144,7 @@ public class NotificacionSolicitudActivity extends AppCompatActivity {
     }
 
     private void aceptarSolicitud() {
+        if (handler!=null)handler.removeCallbacks(runnable);
         authProvider=new AuthProvider();
         geofireProvider=new GeofireProvider("Conductores_Activos");
         geofireProvider.EliminarUbicacion(authProvider.getId());
@@ -103,5 +160,50 @@ public class NotificacionSolicitudActivity extends AppCompatActivity {
         intent1.setAction(Intent.ACTION_RUN);
         intent1.putExtra("idCliente",mExtraClienteId);
         startActivity(intent1);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (mediaPlayer!=null){
+            if (mediaPlayer.isPlaying()){
+                mediaPlayer.pause();
+            }
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (mediaPlayer!=null){
+            if (mediaPlayer.isPlaying()){
+                mediaPlayer.release();
+            }
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (mediaPlayer!=null){
+            if (!mediaPlayer.isPlaying()){
+                mediaPlayer.start();
+            }
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (handler!=null)handler.removeCallbacks(runnable);
+
+        if (mediaPlayer!=null){
+            if (mediaPlayer.isPlaying()){
+                mediaPlayer.pause();
+            }
+        }else if (listener!=null){
+            clienteReservaProvider.getClienteSolicitud(mExtraClienteId).removeEventListener(listener);
+
+        }
     }
 }

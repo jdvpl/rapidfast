@@ -319,7 +319,7 @@ public class MapClienteActivity extends AppCompatActivity  implements OnMapReady
     public void onMapReady(GoogleMap googleMap) {
         nMap = googleMap;
         nMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-        nMap.getUiSettings().setZoomControlsEnabled(true);
+        nMap.getUiSettings().setZoomControlsEnabled(false);
         nMap.setOnCameraIdleListener(cameraIdleListener);
 
         locationRequest = new LocationRequest();

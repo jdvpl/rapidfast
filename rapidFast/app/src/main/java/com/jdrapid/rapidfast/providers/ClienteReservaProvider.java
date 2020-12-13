@@ -37,5 +37,8 @@ public class ClienteReservaProvider {
     public DatabaseReference getClienteSolicitud(String idSolicitudCliente){
         return databaseReference.child(idSolicitudCliente);
     }
+    public Task<Void> borrar(String idCLienteSolicitud){
+        return databaseReference.child(idCLienteSolicitud).removeValue();
+    }
 
 }
