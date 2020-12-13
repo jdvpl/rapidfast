@@ -30,7 +30,7 @@
             android:backgroundTint="@color/black"
             app:lottie_fileName="31815-city-driver-animation.json"
             app:lottie_loop="true"
-            app:lottie_speed="2.0"
+            app:lottie_speed="2"
             app:lottie_autoPlay="true" />
 
 

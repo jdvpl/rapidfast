@@ -7,9 +7,82 @@
     android:fitsSystemWindows="true"
     tools:context=".activities.cliente.CalificarConductorActivity">
 
-    <TextView
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Viaje Finalizado"
+            android:textAlignment="center"
+            android:textColor="@color/black"
+            android:textStyle="bold"
+            android:layout_marginTop="20dp"
+            android:textSize="22sp"/>
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/lottie"
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            app:lottie_fileName="782-check-mark-success.json"
+            app:lottie_autoPlay="true"
+            app:lottie_loop="false"
+            android:layout_gravity="center"
+            android:layout_marginTop="30dp"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Desde"
+            android:textAlignment="center"
+            android:textColor="@color/black"
+            android:textStyle="bold"
+            android:layout_marginTop="20dp"
+            android:textSize="22sp"/>
+        <TextView
+            android:id="@+id/OrigenCalificacionCliente"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Cr 69#64a-19"
+            android:textAlignment="center"
+            android:textStyle="bold"
+            android:layout_marginTop="8dp"
+            android:textSize="17sp"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Hasta"
+            android:textAlignment="center"
+            android:textColor="@color/black"
+            android:textStyle="bold"
+            android:layout_marginTop="20dp"
+            android:textSize="22sp"/>
+        <TextView
+            android:id="@+id/DestinoCalificacionCliente"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Cr 69#64a-19"
+            android:textAlignment="center"
+            android:textStyle="bold"
+            android:layout_marginTop="8dp"
+            android:textSize="17sp"/>
+        <RatingBar
+            android:id="@+id/RtCalificarConductor"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="30dp"/>
+    </LinearLayout>
+    <Button
+        android:id="@+id/CalificarCondcutor"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Calificar Conductor"/>
+        android:layout_gravity="bottom"
+        android:text="Calificar Conductor"
+        android:background="@drawable/boton_redondeado"
+        android:backgroundTint="@color/colorPrimaryDark"
+        android:textColor="@color/white"
+        android:textStyle="bold"
+        android:layout_margin="20dp"/>
+
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

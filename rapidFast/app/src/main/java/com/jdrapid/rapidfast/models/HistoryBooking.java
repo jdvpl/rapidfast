@@ -1,6 +1,6 @@
 package com.jdrapid.rapidfast.models;
 
-public class ClientBooking {
+public class HistoryBooking {
     String idHistorialSolicitud;
     String idCliente;
     String idConductor;
@@ -13,27 +13,16 @@ public class ClientBooking {
     double origenLong;
     double destinoLat;
     double destinoLong;
+    double calificacionCliente;
+    double calificacionConductor;
+    long timestamp;
 
-    public ClientBooking(){
+    public HistoryBooking(){
 
     }
 
-    public ClientBooking(String idCliente, String idConductor, String destino, String origen, String tiempo, String distanciaKm, String estado, double origenLat, double origenLong, double destinoLat, double destinoLong) {
-        this.idCliente = idCliente;
-        this.idConductor = idConductor;
-        Destino = destino;
-        Origen = origen;
-        this.tiempo = tiempo;
-        this.distanciaKm = distanciaKm;
-        this.estado = estado;
-        this.origenLat = origenLat;
-        this.origenLong = origenLong;
-        this.destinoLat = destinoLat;
-        this.destinoLong = destinoLong;
-    }
-
-    public ClientBooking(String idHistorialSolicitud, String idCliente, String idConductor, String destino, String origen, String tiempo, String distanciaKm, String estado, double origenLat, double origenLong, double destinoLat, double destinoLong) {
-        this.idHistorialSolicitud=idHistorialSolicitud;
+    public HistoryBooking(String idHistorialSolicitud, String idCliente, String idConductor, String destino, String origen, String tiempo, String distanciaKm, String estado, double origenLat, double origenLong, double destinoLat, double destinoLong) {
+        this.idHistorialSolicitud = idHistorialSolicitud;
         this.idCliente = idCliente;
         this.idConductor = idConductor;
         Destino = destino;
@@ -70,7 +59,6 @@ public class ClientBooking {
     public void setIdConductor(String idConductor) {
         this.idConductor = idConductor;
     }
-
 
     public String getDestino() {
         return Destino;
@@ -142,5 +130,29 @@ public class ClientBooking {
 
     public void setDestinoLong(double destinoLong) {
         this.destinoLong = destinoLong;
+    }
+
+    public double getCalificacionCliente() {
+        return calificacionCliente;
+    }
+
+    public void setCalificacionCliente(double calificacionCliente) {
+        this.calificacionCliente = calificacionCliente;
+    }
+
+    public double getCalificacionConductor() {
+        return calificacionConductor;
+    }
+
+    public void setCalificacionConductor(double calificacionConductor) {
+        this.calificacionConductor = calificacionConductor;
+    }
+
+    public long getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
     }
 }

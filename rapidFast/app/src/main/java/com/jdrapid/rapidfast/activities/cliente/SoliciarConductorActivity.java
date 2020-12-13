@@ -216,6 +216,10 @@ public class SoliciarConductorActivity extends AppCompatActivity {
 
                     );
                     map.put("idCliente",authProvider.getId());
+                    map.put("origen",mExtraOrigen);
+                    map.put("destino",mExtraDestino);
+                    map.put("tiempo",tiempo);
+                    map.put("distancia",distancia);
 
                     FCMBody fcmBody=new FCMBody(token,"high","450s",map);
 

@@ -199,11 +199,13 @@ public class MapConductorSolicitud extends AppCompatActivity implements OnMapRea
     private void finalizarBooking() {
         clienteReservaProvider.actualizarEstado(mExtraClienteId,"Finalizar");
         Intent intent=new Intent(MapConductorSolicitud.this,CalificacionClienteActivity.class);
+        clienteReservaProvider.actualizarHistoryBooking(mExtraClienteId);
         EnviarNotificacion("Viaje Finalizado");
         if (fusedLocation!=null){
             fusedLocation.removeLocationUpdates(locationCallback);
         }
         geofireProvider.EliminarUbicacion(authProvider.getId());
+        intent.putExtra("idCliente",mExtraClienteId);
         startActivity(intent);
         finish();
     }

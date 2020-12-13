@@ -5,6 +5,8 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+    <uses-permission android:name="android.permission.WAKE_LOCK"/>
+
 
     <application
         android:allowBackup="true"
@@ -13,7 +15,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.RapidFast">
-        <activity android:name=".activities.cliente.CalificarConductorActivity"></activity>
+        <activity android:name=".activities.conductor.NotificacionSolicitudActivity" />
+        <activity android:name=".activities.cliente.CalificarConductorActivity" />
         <activity android:name=".activities.conductor.CalificacionClienteActivity" />
         <activity android:name=".activities.conductor.MapConductorSolicitud" />
         <activity android:name=".activities.cliente.MapClienteReservaActivity" />
@@ -37,7 +40,8 @@
             android:parentActivityName=".activities.cliente.MapClienteActivity" />
         <activity android:name=".activities.conductor.MapConductorActivity" />
         <activity android:name=".activities.cliente.MapClienteActivity" />
-        <activity android:name=".activities.conductor.RegistroConductorActivity" />
+        <activity android:name=".activities.conductor.RegistroConductorActivity"
+            android:parentActivityName=".activities.SeletAuthOptionActivity"/>
         <activity
             android:name=".activities.LoginActivity"
             android:parentActivityName=".activities.SeletAuthOptionActivity" />

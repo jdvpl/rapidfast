@@ -3,11 +3,13 @@ package com.jdrapid.rapidfast.services;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
+import android.os.PowerManager;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -16,6 +18,7 @@ import androidx.core.app.NotificationCompat;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 import com.jdrapid.rapidfast.R;
+import com.jdrapid.rapidfast.activities.conductor.NotificacionSolicitudActivity;
 import com.jdrapid.rapidfast.channel.NotificationHelper;
 import com.jdrapid.rapidfast.receivers.AceptReceiver;
 import com.jdrapid.rapidfast.receivers.CancelReceiver;
@@ -41,19 +44,55 @@ public class MyFirebaseNotificacionCliente  extends FirebaseMessagingService {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
                 if (titulo.contains("SOLICITUD DE SERVICIO")){
                     String idCliente=data.get("idCliente");
+                    String origen=data.get("origen");
+                    String destino=data.get("destino");
+                    String tiempo=data.get("tiempo");
+                    String distancia=data.get("distancia");
                     MostrarNotificacionesOreoAcciones(titulo,body,idCliente);
+                    MostarNotificacionaActivty(idCliente,origen,destino,tiempo,distancia);
                 }else {
                     MostrarNotificacionesOreo(titulo, body);
                 }
             }else {
                 if (titulo.contains("SOLICITUD DE SERVICIO")){
                     String idCliente=data.get("idCliente");
+                    String origen=data.get("origen");
+                    String destino=data.get("destino");
+                    String tiempo=data.get("tiempo");
+                    String distancia=data.get("distancia");
                     mostrarNotioficacionAccion(titulo,body,idCliente);
+                    MostarNotificacionaActivty(idCliente,origen,destino,tiempo,distancia);
                 }else {
                     mostrarNotioficacion(titulo, body);
                 }
             }
         }
+    }
+
+    private void MostarNotificacionaActivty(String idCliente, String origen, String destino, String tiempo, String distancia) {
+
+        PowerManager powerManager=(PowerManager) getBaseContext().getSystemService(Context.POWER_SERVICE);
+        boolean estencendiada=powerManager.isScreenOn();
+        if (!estencendiada){
+            PowerManager.WakeLock wakeLock=powerManager.newWakeLock(
+                    PowerManager.PARTIAL_WAKE_LOCK |
+                            PowerManager.ACQUIRE_CAUSES_WAKEUP |
+                            PowerManager.ON_AFTER_RELEASE,
+                            "AppName:MyLock"
+
+            );
+            wakeLock.acquire(10000);
+
+        }
+        Intent intent=new Intent(getBaseContext(), NotificacionSolicitudActivity.class);
+        intent.putExtra("idCliente",idCliente);
+        intent.putExtra("origen",origen);
+        intent.putExtra("destino",destino);
+        intent.putExtra("tiempo",tiempo);
+        intent.putExtra("distancia",distancia);
+
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
     }
 
     private void mostrarNotioficacion(String Titulo, String Contenido) {
