@@ -24,8 +24,8 @@ public class ClienteProvider {
     public Task<Void> actualizar(Cliente cliente){
         Map<String,Object> map=new HashMap<>();
         map.put("Nombre",cliente.getNombre());
-        map.put("imagen",cliente.getCorreo());
-        return reference.child(cliente.getId()).setValue(map);
+        map.put("imagen",cliente.getImagen());
+        return reference.child(cliente.getId()).updateChildren(map);
     }
     public DatabaseReference getCliente(String idCliente){
         return reference.child(idCliente);

@@ -28,24 +28,31 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.jdrapid.rapidfast.R;
 import com.jdrapid.rapidfast.includes.ToolBar;
+import com.jdrapid.rapidfast.models.Cliente;
 import com.jdrapid.rapidfast.providers.AuthProvider;
 import com.jdrapid.rapidfast.providers.ClienteProvider;
+import com.jdrapid.rapidfast.providers.ImageProvider;
 import com.jdrapid.rapidfast.utils.CompressorBitmapImage;
 import com.jdrapid.rapidfast.utils.FileUtil;
+import com.squareup.picasso.Picasso;
 
 import java.io.File;
 
+import de.hdodenhof.circleimageview.CircleImageView;
+
 public class ActualizarPerfilActivity extends AppCompatActivity {
 
-    private ImageView FotoPerfil;
+    private CircleImageView FotoPerfil;
     private Button BtnActualizar;
     private TextView TextNomvre;
     private ClienteProvider clienteProvider;
     private AuthProvider authProvider;
+    private ImageProvider imageProvider;
     private File mImageFile;
     private String UrlImage;
     private final int CODIGO_GALERIA=1;
     private ProgressDialog progressDialog;
+    private String NombreCompleto;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -58,6 +65,7 @@ public class ActualizarPerfilActivity extends AppCompatActivity {
 
         clienteProvider=new ClienteProvider();
         authProvider=new AuthProvider();
+        imageProvider=new ImageProvider("Cliente_imagenes");
         progressDialog=new ProgressDialog(this);
 
         FotoPerfil.setOnClickListener(new View.OnClickListener() {
@@ -103,6 +111,11 @@ public class ActualizarPerfilActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()){
+                    String imagen="";
+                    if (snapshot.hasChild("imagen")){
+                        imagen=snapshot.child("imagen").getValue().toString();
+                        Picasso.with(ActualizarPerfilActivity.this).load(imagen).into(FotoPerfil);
+                    }
                     String nombre=snapshot.child("Nombre").getValue().toString();
                     TextNomvre.setText(nombre);
                 }
@@ -115,8 +128,8 @@ public class ActualizarPerfilActivity extends AppCompatActivity {
         });
     }
     private void actualizarPerfil() {
-        String Nombre=TextNomvre.getText().toString();
-        if (!Nombre.equals("") && mImageFile !=null){
+        NombreCompleto = TextNomvre.getText().toString();
+        if (!NombreCompleto.equals("") && mImageFile !=null){
             progressDialog.setMessage("Espere un momento por favor...");
             progressDialog.setCanceledOnTouchOutside(false);
             progressDialog.show();
@@ -128,18 +141,25 @@ public class ActualizarPerfilActivity extends AppCompatActivity {
     }
 
     private void guardarImagen() {
-        byte [] imagenByte= CompressorBitmapImage.getImage(this,mImageFile.getPath(),500,500);
-        StorageReference storageReference= FirebaseStorage.getInstance().getReference().child("CLiente_Imagenes").child(authProvider.getId()+".jpg");
-        UploadTask uploadTask=storageReference.putBytes(imagenByte);
-        uploadTask.addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+      imageProvider.guardarImagen(ActualizarPerfilActivity.this,mImageFile,authProvider.getId()).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
                 if (task.isSuccessful()){
-                    storageReference.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                    imageProvider.getStorage().getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                         @Override
                         public void onSuccess(Uri uri) {
                             String imagen=uri.toString();
-
+                            Cliente cliente=new Cliente();
+                            cliente.setImagen(imagen);
+                            cliente.setNombre(NombreCompleto);
+                            cliente.setId(authProvider.getId());
+                            clienteProvider.actualizar(cliente).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    progressDialog.dismiss();
+                                    Toast.makeText(ActualizarPerfilActivity.this, "Su informacion se actualizo correctamente", Toast.LENGTH_SHORT).show();
+                                }
+                            });
                         }
                     });
                 }else {

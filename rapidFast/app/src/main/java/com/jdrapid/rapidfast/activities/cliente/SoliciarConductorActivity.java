@@ -48,7 +48,6 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class SoliciarConductorActivity extends AppCompatActivity {
-    private LottieAnimationView lottieAnimationView;
     private TextView Buscandoa;
     private Button BtnCancelar;
 
@@ -78,13 +77,11 @@ public class SoliciarConductorActivity extends AppCompatActivity {
     private ClienteProvider clienteProvider;
 //    escuhador
     private ValueEventListener mlistener;
-    private String NombreCOnductor,NombreCliente;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_soliciar_conductor);
-        lottieAnimationView=findViewById(R.id.animacionBuscando);
         Buscandoa=findViewById(R.id.TxtBuscandoCOnductor);
         BtnCancelar=findViewById(R.id.BtncancelarVije);
 //        obtener la infro del activity anterior
@@ -95,7 +92,6 @@ public class SoliciarConductorActivity extends AppCompatActivity {
         mExtraDestinoLat=getIntent().getDoubleExtra("destino_lat",0);
         mExtraDestinoLon=getIntent().getDoubleExtra("destino_lon",0);
 
-        lottieAnimationView.playAnimation();
         origenLatlgn=new LatLng(mExtraLat,mExtraLon);
         destinoLatlng=new LatLng(mExtraDestinoLat,mExtraDestinoLon);
 //        isntanciar
@@ -257,6 +253,9 @@ public class SoliciarConductorActivity extends AppCompatActivity {
                                             mExtraLon,
                                             mExtraDestinoLat,
                                             mExtraDestinoLon
+
+
+
                                     );
                                     clienteReservaProvider.Crear(clientBooking).addOnSuccessListener(new OnSuccessListener<Void>() {
                                         @Override

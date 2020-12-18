@@ -7,23 +7,43 @@
     android:fitsSystemWindows="true"
     tools:context=".activities.conductor.RegistroConductorActivity">
 
-    <include
-        android:id="@+id/toolbar"
-        layout="@layout/toolbar"/>
+
+
+
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:layout_marginTop="60dp"
-        android:gravity="center">
+        android:orientation="vertical">
+
+        <com.github.florent37.shapeofview.shapes.ArcView
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:elevation="4dp"
+            app:shape_arc_cropDirection="outside"
+            app:shape_arc_height="20dp"
+            app:shape_arc_position="bottom"
+            >
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/colorPrimary"/>
+
+
+        </com.github.florent37.shapeofview.shapes.ArcView>
         <!--        Nombre del usuario-->
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_margin="15dp">
+            android:layout_marginTop="50dp"
+            android:layout_marginHorizontal="15dp">
             <ImageView
                 android:layout_width="40dp"
                 android:layout_height="40dp"
@@ -132,6 +152,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="@string/Placa"
+                    android:maxLength="6"
                     android:inputType="textCapWords"/>
             </com.google.android.material.textfield.TextInputLayout>
         </LinearLayout>
@@ -155,6 +176,7 @@
                     android:id="@+id/InContrasena"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    app:passwordToggleEnabled="true"
                     android:hint="@string/contrasena"
                     android:inputType="text"/>
             </com.google.android.material.textfield.TextInputLayout>
@@ -172,6 +194,15 @@
             android:layout_marginTop="15dp"/>
 
     </LinearLayout>
-
-
+    </ScrollView>
+    <include
+        android:id="@+id/toolbar"
+        layout="@layout/toolbar"/>
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:layout_gravity="center|top"
+        android:layout_marginTop="100dp"
+        android:src="@drawable/imagen1"
+        />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

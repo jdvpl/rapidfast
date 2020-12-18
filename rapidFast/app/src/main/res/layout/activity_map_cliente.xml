@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
+
     tools:context=".activities.cliente.MapClienteActivity">
 
 
@@ -17,39 +18,46 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:foregroundTint="#F8F7F7"
+        android:orientation="vertical"
+        android:theme="@style/TextAppearance.Compat.Notification"
+        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior">
+
         <androidx.cardview.widget.CardView
 
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:layout_marginHorizontal="20dp"
             android:layout_marginTop="65dp"
-            android:layout_width="match_parent"
-            android:background="@color/white"
-            app:cardCornerRadius="20dp"
-            android:layout_height="wrap_content">
+
+            app:cardCornerRadius="20dp">
+
             <fragment
                 android:id="@+id/autocompletado"
+                android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-
-                android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment"/>
+                android:background="@color/black"
+                android:textColor="@color/white"
+                android:layout_height="wrap_content" />
 
         </androidx.cardview.widget.CardView>
+
         <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:layout_marginHorizontal="20dp"
             android:layout_marginTop="20dp"
-            android:layout_width="match_parent"
             android:background="@color/white"
-            app:cardCornerRadius="20dp"
-            android:layout_height="wrap_content">
+            app:cardCornerRadius="20dp">
+
             <fragment
 
                 android:id="@+id/autocompletadodestino"
+                android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
 
-                android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment"/>
+                android:layout_height="wrap_content" />
 
         </androidx.cardview.widget.CardView>
 
@@ -65,10 +73,12 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@drawable/boton_redondeado"
-        android:text="SOLICITAR VIJAE"
+        android:text="SOLICITAR VIAJE"
         android:layout_marginBottom="20dp"
         android:layout_gravity="bottom"
         android:backgroundTint="@color/black"
+        android:textSize="25sp"
+        android:fontFamily="sans-serif-condensed"
         android:textColor="@color/white"
         android:layout_marginHorizontal="60dp"
         android:textStyle="bold"/>

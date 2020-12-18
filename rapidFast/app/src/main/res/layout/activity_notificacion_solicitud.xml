@@ -10,25 +10,26 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <ImageView
-            android:layout_width="200dp"
-            android:layout_height="200dp"
-            android:src="@drawable/mapa"
-            android:layout_gravity="center"
-            android:layout_marginTop="30dp"
-            />
 
+
+        <ImageView
+            android:layout_width="170dp"
+            android:layout_height="170dp"
+            android:src="@drawable/logo"
+            android:layout_marginTop="40dp"
+            android:layout_gravity="center"
+            />
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Desde"
             android:textAlignment="center"
+
             android:textColor="@color/black"
             android:textStyle="bold"
             android:layout_marginTop="20dp"
@@ -73,12 +74,17 @@
                 android:gravity="center"
                 android:layout_marginTop="20dp"
                 android:orientation="vertical">
-
+                <ImageView
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:src="@drawable/timer"
+                    app:tint="@color/black" />
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="18sp"
                     android:textColor="@color/black"
+                    android:textAllCaps="true"
                     android:textStyle="bold"
                     android:text="Tiempo de llegada"/>
                 <TextView
@@ -96,12 +102,18 @@
                 android:gravity="center"
                 android:layout_marginTop="20dp"
                 android:orientation="vertical">
+                <ImageView
+                    android:layout_width="25dp"
+                    android:layout_height="25dp"
+                    android:src="@drawable/ic_map"
+                    app:tint="@color/black" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textSize="18sp"
                     android:textColor="@color/black"
+                    android:textAllCaps="true"
                     android:textStyle="bold"
                     android:text="Distancia"/>
                 <TextView
@@ -118,14 +130,13 @@
             android:id="@+id/contadoTiempo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="40sp"
+            android:textSize="45sp"
             android:textAlignment="center"
             android:layout_gravity="center"
             android:textColor="@color/black"
             android:textStyle="bold"
             android:layout_marginTop="25dp"
             android:text="15"/>
-
 
     </LinearLayout>
     </ScrollView>
@@ -144,7 +155,7 @@
             android:layout_weight="1"
             android:layout_marginRight="5dp"
             android:background="@drawable/boton_redondeado"
-            android:backgroundTint="@color/azulclaro"
+            android:backgroundTint="@color/colorPrimary"
             android:textColor="@color/white"
             android:textStyle="bold"/>
         <Button
@@ -155,7 +166,7 @@
             android:layout_weight="1"
             android:layout_marginLeft="5dp"
             android:background="@drawable/boton_redondeado"
-            android:backgroundTint="@color/RojoVivo"
+            android:backgroundTint="@color/colorPrimary"
             android:textColor="@color/white"
             android:textStyle="bold"/>
     </LinearLayout>

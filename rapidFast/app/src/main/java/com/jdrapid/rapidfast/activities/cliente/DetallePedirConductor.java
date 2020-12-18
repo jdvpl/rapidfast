@@ -1,5 +1,6 @@
 package com.jdrapid.rapidfast.activities.cliente;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
@@ -21,10 +22,15 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.maps.model.SquareCap;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.ValueEventListener;
 import com.jdrapid.rapidfast.R;
 import com.jdrapid.rapidfast.includes.ToolBar;
+import com.jdrapid.rapidfast.models.Info;
 import com.jdrapid.rapidfast.providers.GeofireProvider;
 import com.jdrapid.rapidfast.providers.GoogleApiProvider;
+import com.jdrapid.rapidfast.providers.InfoProvider;
 import com.jdrapid.rapidfast.utils.DecodePoints;
 
 import org.json.JSONArray;
@@ -48,8 +54,10 @@ public class DetallePedirConductor extends AppCompatActivity implements OnMapRea
     private List<LatLng> listaPoligonos;
     private PolylineOptions polylineOptions;
 
-    TextView TxtOrigen,TxtDestino,TxtTiempo,TxtDistancia;
+    TextView TxtOrigen,TxtDestino,TxtTiempo,TxtPrecio;
     private Button BtnPedirConductor;
+
+    private InfoProvider infoProvider;
 
 
 
@@ -75,11 +83,12 @@ public class DetallePedirConductor extends AppCompatActivity implements OnMapRea
         mDestinoLatlng=new LatLng(mExtraDestinoLat,mExtraDestinoLon);
 //        isntancioando el googleapiprovider
         googleApiProvider=new GoogleApiProvider(DetallePedirConductor.this);
+        infoProvider=new InfoProvider();
 
         TxtOrigen=findViewById(R.id.TxtVieOrigen);
         TxtDestino=findViewById(R.id.TxtVieDestino);
         TxtTiempo=findViewById(R.id.TxtTiempo);
-        TxtDistancia=findViewById(R.id.TxtDistancia);
+        TxtPrecio=findViewById(R.id.TxtPrecio);
         BtnPedirConductor=findViewById(R.id.btnPedirAhora);
 
         TxtOrigen.setText(mExtraOrigen);
@@ -118,8 +127,8 @@ public class DetallePedirConductor extends AppCompatActivity implements OnMapRea
                     String puntos=poligonos.getString("points");
                     listaPoligonos= DecodePoints.decodePoly(puntos);
                     polylineOptions=new PolylineOptions();
-                    polylineOptions.color(Color.BLUE);
-                    polylineOptions.width(20f);
+                    polylineOptions.color(Color.BLACK);
+                    polylineOptions.width(15f);
                     polylineOptions.startCap(new SquareCap());
                     polylineOptions.jointType(JointType.ROUND);
                     polylineOptions.addAll(listaPoligonos);
@@ -137,8 +146,16 @@ public class DetallePedirConductor extends AppCompatActivity implements OnMapRea
                     String Duracion=duracion.getString("text");
 
 //                    colocar el tiempo
-                    TxtTiempo.setText(Duracion);
-                    TxtDistancia.setText(Distancia);
+                    TxtTiempo.setText(Duracion + " "+ Distancia);
+
+                    String [] distanciaykm=Distancia.split(" ");
+                    double distanciaValor=Double.parseDouble(distanciaykm[0]);
+
+                    String [] duracionyMin=Duracion.split(" ");
+                    double duracionCValor=Double.parseDouble(duracionyMin[0]);
+
+                    calcularPrecio(distanciaValor,duracionCValor);
+
 
                 }catch (Exception e){
                     Log.d("Error","Jiren: "+e.getMessage());
@@ -152,13 +169,35 @@ public class DetallePedirConductor extends AppCompatActivity implements OnMapRea
         });
     }
 
+    private void calcularPrecio(double distanciaValor, double duracionCValor) {
+        infoProvider.getInfo().addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()){
+                    Info info=snapshot.getValue(Info.class);
+                    double totalDistancia=distanciaValor*info.getKm();
+                    double totalDuracion=duracionCValor*info.getMin();
+                    double total=totalDistancia+totalDuracion;
+                    double mintotal=total-200;
+                    double maxtotal=total+200;
+                    TxtPrecio.setText("$ "+mintotal+"-"+maxtotal);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
     @Override
     public void onMapReady(GoogleMap googleMap) {
         nMap = googleMap;
-        nMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+        nMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
         nMap.getUiSettings().setZoomControlsEnabled(true);
-        nMap.addMarker(new MarkerOptions().position(mOriginLatlng).title("Origen").icon(BitmapDescriptorFactory.fromResource(R.drawable.mappinrojo)));
-        nMap.addMarker(new MarkerOptions().position(mDestinoLatlng).title("Destino").icon(BitmapDescriptorFactory.fromResource(R.drawable.mappinverde)));
+        nMap.addMarker(new MarkerOptions().position(mOriginLatlng).title("Origen").icon(BitmapDescriptorFactory.fromResource(R.drawable.pin)));
+        nMap.addMarker(new MarkerOptions().position(mDestinoLatlng).title("Destino").icon(BitmapDescriptorFactory.fromResource(R.drawable.pin)));
         nMap.animateCamera(CameraUpdateFactory.newCameraPosition(
                 new CameraPosition.Builder().target(mOriginLatlng).zoom(15f).build()
         ));

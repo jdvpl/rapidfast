@@ -46,6 +46,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
 import com.jdrapid.rapidfast.R;
 import com.jdrapid.rapidfast.activities.MainActivity;
+import com.jdrapid.rapidfast.activities.cliente.ActualizarPerfilActivity;
+import com.jdrapid.rapidfast.activities.cliente.HistorialSolicitudClienteActivity;
 import com.jdrapid.rapidfast.activities.cliente.MapClienteActivity;
 import com.jdrapid.rapidfast.includes.ToolBar;
 import com.jdrapid.rapidfast.providers.AuthProvider;
@@ -111,7 +113,7 @@ public class MapConductorActivity extends AppCompatActivity implements OnMapRead
         setContentView(R.layout.activity_map_conductor);
         authProvider = new AuthProvider();
 
-        ToolBar.mostrar(this, "Conductor", false);
+        ToolBar.mostrar(this, "Rapidfast Driver", false);
 
         mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
@@ -138,8 +140,13 @@ public class MapConductorActivity extends AppCompatActivity implements OnMapRead
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        if (locationCallback !=null && fusedLocation!=null){
+            fusedLocation.removeLocationUpdates(locationCallback);
+        }
         if (mlistener != null){
-            geofireProvider.ConductoresTrabajando(authProvider.getId()).removeEventListener(mlistener);
+            if (authProvider.existeSesion()){
+                geofireProvider.ConductoresTrabajando(authProvider.getId()).removeEventListener(mlistener);
+            }
         }
     }
 
@@ -169,7 +176,7 @@ public class MapConductorActivity extends AppCompatActivity implements OnMapRead
     @Override
     public void onMapReady(GoogleMap googleMap) {
         nMap = googleMap;
-        nMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+        nMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
         nMap.getUiSettings().setZoomControlsEnabled(true);
 
         locationRequest = new LocationRequest();
@@ -302,6 +309,14 @@ public class MapConductorActivity extends AppCompatActivity implements OnMapRead
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.action_logout){
             logout();
+        }
+        if (item.getItemId() == R.id.actualizarPerfilConductor){
+            Intent intent=new Intent(MapConductorActivity.this, ActualizarPerfilConductor.class);
+            startActivity(intent);
+        }
+        if (item.getItemId() == R.id.historialViajesConductor){
+            Intent intent=new Intent(MapConductorActivity.this, HistorialSolicitudConductorActivity.class);
+            startActivity(intent);
         }
         return super.onOptionsItemSelected(item);
     }

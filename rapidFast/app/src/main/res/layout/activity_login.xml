@@ -6,27 +6,39 @@
     android:layout_height="match_parent"
     tools:context=".activities.LoginActivity">
 
-    <include
-        android:id="@+id/toolbar"
-        layout="@layout/toolbar"/>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:gravity="center">
+        android:orientation="vertical">
+
+        <com.github.florent37.shapeofview.shapes.ArcView
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:elevation="4dp"
+            app:shape_arc_cropDirection="outside"
+            app:shape_arc_height="20dp"
+            android:layout_marginBottom="50dp"
+            app:shape_arc_position="bottom"
+            >
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/colorPrimary"/>
+
+
+        </com.github.florent37.shapeofview.shapes.ArcView>
         <!--        Nombre del usuario-->
-        <ImageView
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:src="@drawable/imagen1"/>
+
 
         <!--    correo-->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_margin="15dp">
+            android:layout_marginTop="40dp"
+            android:layout_marginHorizontal="15dp">
             <ImageView
                 android:layout_width="40dp"
                 android:layout_height="40dp"
@@ -85,5 +97,14 @@
             android:layout_marginTop="15dp"/>
 
     </LinearLayout>
+    <include
+        android:id="@+id/toolbar"
+        layout="@layout/toolbar"/>
+    <ImageView
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:layout_marginTop="140dp"
+        android:layout_gravity="center|top"
+        android:src="@drawable/imagen1"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

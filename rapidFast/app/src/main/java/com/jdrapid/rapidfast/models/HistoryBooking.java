@@ -17,6 +17,7 @@ public class HistoryBooking {
     double calificacionConductor;
     long timestamp;
 
+
     public HistoryBooking(){
 
     }
@@ -34,6 +35,7 @@ public class HistoryBooking {
         this.origenLong = origenLong;
         this.destinoLat = destinoLat;
         this.destinoLong = destinoLong;
+
     }
 
     public String getIdHistorialSolicitud() {
@@ -155,4 +157,6 @@ public class HistoryBooking {
     public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
     }
+
+
 }

@@ -7,8 +7,12 @@ public class Conductor {
     String cedula;
     String marcaVehiculo;
     String PlacaVehiculo;
+    String imagen;
 
-    public Conductor(String id, String cedula,String nombre, String correo,  String marcaVehiculo, String placaVehiculo) {
+    public Conductor() {
+    }
+
+    public Conductor(String id, String cedula, String nombre, String correo, String marcaVehiculo, String placaVehiculo) {
         this.id = id;
         this.nombre = nombre;
         this.correo = correo;
@@ -63,5 +67,13 @@ public class Conductor {
 
     public void setPlacaVehiculo(String placaVehiculo) {
         PlacaVehiculo = placaVehiculo;
+    }
+
+    public String getImagen() {
+        return imagen;
+    }
+
+    public void setImagen(String imagen) {
+        this.imagen = imagen;
     }
 }

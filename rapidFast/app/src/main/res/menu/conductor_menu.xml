@@ -2,6 +2,18 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <item android:id="@+id/historialViajesConductor"
+        android:title="Historial Viajes"
+        app:showAsAction="never"/>
+
+    <item android:id="@+id/afiliados"
+        android:title="Afiliados"
+        app:showAsAction="never"/>
+
+    <item android:id="@+id/actualizarPerfilConductor"
+        android:title="Perfil"
+        app:showAsAction="never"/>
+
     <item android:id="@+id/action_logout"
         android:title="Cerrar Sesion"
         app:showAsAction="never"/>

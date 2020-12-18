@@ -5,52 +5,81 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
+    android:background="@color/colorPrimary"
     tools:context=".activities.cliente.MapClienteReservaActivity">
+
+    <fragment
+        android:id="@+id/map"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginBottom="120dp"
+        android:name="com.google.android.gms.maps.SupportMapFragment"/>
 
     <androidx.cardview.widget.CardView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="20dp"
+        app:cardCornerRadius="20dp"
+        app:cardBackgroundColor="@color/colorPrimary"
         app:contentPadding="15dp">
 
         <TextView
             android:id="@+id/txtEstadoSolicitud"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textColor="@color/white"
             android:text="Estado"/>
     </androidx.cardview.widget.CardView>
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
-        <fragment
-            android:id="@+id/map"
+
+
+        <com.github.florent37.shapeofview.shapes.BubbleView
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:name="com.google.android.gms.maps.SupportMapFragment"/>
-        <androidx.cardview.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:cardCornerRadius="10dp">
+            android:layout_height="160dp"
+            app:shape_bubble_arrowHeight="15dp"
+            app:shape_bubble_arrowWidth="15dp"
+            app:shape_bubble_arrowPosition="top"
+            android:layout_gravity="bottom"
+            app:shape_bubble_borderRadius="20dp"
+            >
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/colorPrimary"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="25dp"
+                android:orientation="vertical">
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
-                <ImageView
-                    android:id="@+id/fotoCLienteBooking"
+
+                <de.hdodenhof.circleimageview.CircleImageView
+                    android:id="@+id/fotoConductorBooking"
                     android:layout_width="80dp"
                     android:layout_height="80dp"
-                    android:src="@drawable/usuario"/>
+                    android:layout_gravity="center"
+                    android:layout_marginLeft="20dp"
+                    android:src="@drawable/imagen1"
+                    app:civ_border_color="@color/white"
+                    app:civ_border_width="2dp" />
+
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="10dp"
                     android:orientation="vertical">
                     <TextView
                         android:id="@+id/txtConductorOrigen"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="10dp"
+                        android:maxLines="2"
+                        android:textColor="@color/white"
+
                         android:layout_marginTop="5dp"
                         android:textSize="16sp"
                         android:text="Nombre Usuario"/>
@@ -61,13 +90,17 @@
                         android:layout_marginLeft="10dp"
                         android:layout_marginTop="5dp"
                         android:textSize="16sp"
-                        android:text="Nombre Usuario"/>
+                        android:maxLines="1"
+                        android:textColor="@color/white"
+                        android:text="destino Usuario"/>
                     <TextView
                         android:id="@+id/txtconductornombne"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginLeft="10dp"
                         android:layout_marginTop="5dp"
+                        android:textColor="@color/white"
+                        android:maxLines="1"
                         android:textSize="16sp"
                         android:text="Nombre Usuario"/>
                     <TextView
@@ -77,11 +110,14 @@
                         android:layout_marginLeft="10dp"
                         android:layout_marginTop="5dp"
                         android:textSize="16sp"
+                        android:maxLines="1"
+                        android:textColor="@color/white"
                         android:text="Email Usuario"/>
                 </LinearLayout>
             </LinearLayout>
-        </androidx.cardview.widget.CardView>
-    </LinearLayout>
+            </LinearLayout>
+        </com.github.florent37.shapeofview.shapes.BubbleView>
+
 
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

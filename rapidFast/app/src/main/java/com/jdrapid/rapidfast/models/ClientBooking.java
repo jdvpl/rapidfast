@@ -13,6 +13,8 @@ public class ClientBooking {
     double origenLong;
     double destinoLat;
     double destinoLong;
+    double precio;
+
 
     public ClientBooking(){
 
@@ -21,8 +23,24 @@ public class ClientBooking {
     public ClientBooking(String idCliente, String idConductor, String destino, String origen, String tiempo, String distanciaKm, String estado, double origenLat, double origenLong, double destinoLat, double destinoLong) {
         this.idCliente = idCliente;
         this.idConductor = idConductor;
-        Destino = destino;
-        Origen = origen;
+        this.Destino = destino;
+        this.Origen = origen;
+        this.tiempo = tiempo;
+        this.distanciaKm = distanciaKm;
+        this.estado = estado;
+        this.origenLat = origenLat;
+        this.origenLong = origenLong;
+        this.destinoLat = destinoLat;
+        this.destinoLong = destinoLong;
+
+    }
+
+    public ClientBooking(String idHistorialSolicitud, String idCliente, String idConductor, String destino, String origen, String tiempo, String distanciaKm, String estado, double origenLat, double origenLong, double destinoLat, double destinoLong) {
+        this.idHistorialSolicitud=idHistorialSolicitud;
+        this.idCliente = idCliente;
+        this.idConductor = idConductor;
+        this.Destino = destino;
+        this.Origen = origen;
         this.tiempo = tiempo;
         this.distanciaKm = distanciaKm;
         this.estado = estado;
@@ -32,8 +50,8 @@ public class ClientBooking {
         this.destinoLong = destinoLong;
     }
 
-    public ClientBooking(String idHistorialSolicitud, String idCliente, String idConductor, String destino, String origen, String tiempo, String distanciaKm, String estado, double origenLat, double origenLong, double destinoLat, double destinoLong) {
-        this.idHistorialSolicitud=idHistorialSolicitud;
+    public ClientBooking(String idHistorialSolicitud, String idCliente, String idConductor, String destino, String origen, String tiempo, String distanciaKm, String estado, double origenLat, double origenLong, double destinoLat, double destinoLong, double precio) {
+        this.idHistorialSolicitud = idHistorialSolicitud;
         this.idCliente = idCliente;
         this.idConductor = idConductor;
         Destino = destino;
@@ -45,6 +63,7 @@ public class ClientBooking {
         this.origenLong = origenLong;
         this.destinoLat = destinoLat;
         this.destinoLong = destinoLong;
+        this.precio = precio;
     }
 
     public String getIdHistorialSolicitud() {
@@ -143,4 +162,13 @@ public class ClientBooking {
     public void setDestinoLong(double destinoLong) {
         this.destinoLong = destinoLong;
     }
+
+    public double getPrecio() {
+        return precio;
+    }
+
+    public void setPrecio(double precio) {
+        this.precio = precio;
+    }
 }
+

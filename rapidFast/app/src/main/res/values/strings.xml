@@ -7,7 +7,7 @@
     <!--    del opcional-->
     <string name="option">¿Qué quieres hacer?</string>
     <string name="Sellogin">Ya tengo cuenta</string>
-    <string name="Selregisto">Regostrarme</string>
+    <string name="Selregisto">Registrarme</string>
 
 
     <string name="Nombre">Nombre Completo</string>

@@ -9,6 +9,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -41,6 +42,7 @@ import com.jdrapid.rapidfast.providers.GeofireProvider;
 import com.jdrapid.rapidfast.providers.GoogleApiProvider;
 import com.jdrapid.rapidfast.providers.TokenProvider;
 import com.jdrapid.rapidfast.utils.DecodePoints;
+import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -62,7 +64,8 @@ public class MapClienteReservaActivity extends AppCompatActivity implements OnMa
     private ConductorProvider conductorProvider;
 
     private GeofireProvider geofireProvider;
-
+    private FusedLocationProviderClient fusedLocation;
+    private LocationRequest locationRequest;
     //    ubicacion y recogida del cliente
     private String mOrigin,mDestino;
     private LatLng mOriginLtg,mDestinoLtg;
@@ -74,6 +77,7 @@ public class MapClienteReservaActivity extends AppCompatActivity implements OnMa
 //    textview
     private TextView txtNombreConductor,txtEmailConductor;
     private TextView txtOrigenConductor,txtDestinoConductor,txtEstadoSolicitud;
+    private ImageView FotoConductorsolicitud;
 
 private LatLng mOriginLatlng,mDestinoLatlng;
     private GoogleApiProvider googleApiProvider;
@@ -96,12 +100,14 @@ private LatLng mOriginLatlng,mDestinoLatlng;
         clienteReservaProvider=new ClienteReservaProvider();
         googleApiProvider=new GoogleApiProvider(MapClienteReservaActivity.this);
         conductorProvider=new ConductorProvider();
+        fusedLocation = LocationServices.getFusedLocationProviderClient(this);
 //        inicializqar los txtviews
         txtNombreConductor=findViewById(R.id.txtconductornombne);
         txtEmailConductor=findViewById(R.id.txtemaiconductor);
         txtEstadoSolicitud=findViewById(R.id.txtEstadoSolicitud);
         txtOrigenConductor=findViewById(R.id.txtConductorOrigen);
         txtDestinoConductor=findViewById(R.id.txtConductorDestino);
+        FotoConductorsolicitud=findViewById(R.id.fotoConductorBooking);
 
 
         if (!Places.isInitialized()){
@@ -146,7 +152,7 @@ private LatLng mOriginLatlng,mDestinoLatlng;
     }
 
     private void comenzarSolicitud() {
-        nMap.addMarker(new MarkerOptions().position(mDestinoLatlng).title("Destino").icon(BitmapDescriptorFactory.fromResource(R.drawable.mappinverde)));
+        nMap.addMarker(new MarkerOptions().position(mDestinoLatlng).title("Destino").icon(BitmapDescriptorFactory.fromResource(R.drawable.pin)));
         nMap.clear();
         DibujarRuta(mDestinoLatlng);
     }
@@ -170,7 +176,7 @@ private LatLng mOriginLatlng,mDestinoLatlng;
                     mDestinoLatlng=new LatLng(destinoLat,destinoLon);
                     txtOrigenConductor.setText("Recoger en: "+origen);
                     txtDestinoConductor.setText("Destino: "+destino);
-                    nMap.addMarker(new MarkerOptions().position(mOriginLatlng).title("Recoger Aqui").icon(BitmapDescriptorFactory.fromResource(R.drawable.mappinrojo)));
+                    nMap.addMarker(new MarkerOptions().position(mOriginLatlng).title("Recoger Aqui").icon(BitmapDescriptorFactory.fromResource(R.drawable.pin)));
                     obtenerConductor(idConductor);
                     ObtenerUbicacionConductor(idConductor);
 
@@ -191,6 +197,11 @@ private LatLng mOriginLatlng,mDestinoLatlng;
                 if (snapshot.exists()){
                     String nombre=snapshot.child("nombre").getValue().toString();
                     String correro=snapshot.child("correo").getValue().toString();
+                    String imagen="";
+                    if (snapshot.hasChild("imagen")){
+                        imagen=snapshot.child("imagen").getValue().toString();
+                        Picasso.with(MapClienteReservaActivity.this).load(imagen).into(FotoConductorsolicitud);
+                    }
                     txtNombreConductor.setText(nombre);
                     txtEmailConductor.setText(correro);
                 }
@@ -292,9 +303,13 @@ private LatLng mOriginLatlng,mDestinoLatlng;
     @Override
     public void onMapReady(GoogleMap googleMap) {
         nMap = googleMap;
-        nMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
-        nMap.getUiSettings().setZoomControlsEnabled(true);
-        nMap.setMyLocationEnabled(true);
+        nMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
+
+        locationRequest = new LocationRequest();
+        locationRequest.setInterval(1000);
+        locationRequest.setFastestInterval(1000);
+        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+        locationRequest.setSmallestDisplacement(5);
 
 
     }

@@ -13,6 +13,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -136,7 +137,7 @@ public class MapClienteActivity extends AppCompatActivity  implements OnMapReady
         setContentView(R.layout.activity_map_cliente);
         authProvider = new AuthProvider();
 
-        ToolBar.mostrar(this, "Cliente", false);
+        ToolBar.mostrar(this, "Rapidfast", false);
 
         mapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
@@ -318,7 +319,7 @@ public class MapClienteActivity extends AppCompatActivity  implements OnMapReady
     @Override
     public void onMapReady(GoogleMap googleMap) {
         nMap = googleMap;
-        nMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
+        nMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
         nMap.getUiSettings().setZoomControlsEnabled(false);
         nMap.setOnCameraIdleListener(cameraIdleListener);
 
@@ -430,14 +431,22 @@ public class MapClienteActivity extends AppCompatActivity  implements OnMapReady
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.conductor_menu,menu);
+        getMenuInflater().inflate(R.menu.cliente_menu,menu);
         return super.onCreateOptionsMenu(menu);
     }
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == R.id.action_logout){
+        if (item.getItemId() == R.id.logoutCliente){
             logout();
+        }
+        if (item.getItemId() == R.id.actualizarPerfil){
+            Intent intent=new Intent(MapClienteActivity.this,ActualizarPerfilActivity.class);
+            startActivity(intent);
+        }
+        if (item.getItemId() == R.id.Historial){
+            Intent intent=new Intent(MapClienteActivity.this,HistorialSolicitudClienteActivity.class);
+            startActivity(intent);
         }
         return super.onOptionsItemSelected(item);
     }

@@ -20,13 +20,16 @@
         android:id="@+id/btnConect"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Conectarse"
         android:layout_gravity="bottom"
+        android:layout_marginHorizontal="70dp"
         android:layout_marginBottom="30dp"
         android:background="@drawable/boton_redondeado"
-        android:layout_marginHorizontal="70dp"
-        android:backgroundTint="@color/colorPrimaryDark"
-        android:textColor="@color/white"/>
+        android:backgroundTint="@color/black"
+        android:textSize="25sp"
+        android:textStyle="bold"
+        android:fontFamily="sans-serif-condensed"
+        android:text="Conectarse"
+        android:textColor="@color/white" />
 
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

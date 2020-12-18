@@ -27,7 +27,7 @@ import com.jdrapid.rapidfast.providers.HistoryBookingProvider;
 import java.util.Date;
 
 public class CalificacionClienteActivity extends AppCompatActivity {
-    private TextView mOrigenCalif,mDestinoCalif;
+    private TextView mOrigenCalif,mDestinoCalif,califPrecio;
     private RatingBar mRatingBar;
     private Button mButtonCalificacion;
     private ClienteReservaProvider clienteReservaProvider;
@@ -36,6 +36,7 @@ public class CalificacionClienteActivity extends AppCompatActivity {
     private HistoryBookingProvider historyBookingProvider;
 
     private float mCalificacion=0;
+    private double mExtraPrecio=0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,12 +45,17 @@ public class CalificacionClienteActivity extends AppCompatActivity {
 
         mOrigenCalif=findViewById(R.id.OrigenCalificacionConductor);
         mDestinoCalif=findViewById(R.id.DestinoCalificacionConductor);
+        califPrecio=findViewById(R.id.CalificacionPrecio);
+
         mRatingBar=findViewById(R.id.RtCalificarCliente);
         mButtonCalificacion=findViewById(R.id.CalificarCliente);
         mRatingBar=findViewById(R.id.RtCalificarCliente);
         mExtraCleinteId=getIntent().getStringExtra("idCliente");
+        mExtraPrecio=getIntent().getDoubleExtra("precio",0);
         clienteReservaProvider=new ClienteReservaProvider();
         historyBookingProvider=new HistoryBookingProvider();
+
+        califPrecio.setText("$ "+String.format("%.1f",mExtraPrecio));
 
         mRatingBar.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
             @Override

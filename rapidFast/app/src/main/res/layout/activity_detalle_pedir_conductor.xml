@@ -5,138 +5,175 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
+    android:background="@color/colorPrimary"
     tools:context=".activities.cliente.DetallePedirConductor">
 
-
-    <LinearLayout
+    <fragment
+        android:id="@+id/map"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginBottom="165dp"
+        android:name="com.google.android.gms.maps.SupportMapFragment"/>
 
-        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"
-        android:orientation="vertical">
-        <fragment
-            android:id="@+id/map"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:name="com.google.android.gms.maps.SupportMapFragment"/>
+    <com.github.florent37.shapeofview.shapes.BubbleView
+        android:layout_width="match_parent"
+        android:layout_height="190dp"
+        app:shape_bubble_arrowHeight="15dp"
+        app:shape_bubble_arrowWidth="15dp"
+        app:shape_bubble_arrowPosition="top"
+        android:layout_gravity="bottom"
+        app:shape_bubble_borderRadius="20dp"
+        >
 
-        <LinearLayout
-            android:padding="20dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-
-            android:orientation="horizontal">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:text="Origen: "/>
-            <TextView
-                android:id="@+id/TxtVieOrigen"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="16sp"
-                android:text=""/>
-
-        </LinearLayout>
         <View
             android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@android:color/darker_gray"
-            android:layout_marginHorizontal="20dp"/>
-        <LinearLayout
-            android:padding="20dp"
-            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@color/colorPrimary"/>
 
-            android:orientation="horizontal">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:text="Destino: "/>
-            <TextView
-                android:id="@+id/TxtVieDestino"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="16sp"
-                android:text=" "/>
-
-        </LinearLayout>
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@android:color/darker_gray"
-            android:layout_marginHorizontal="20dp"/>
         <LinearLayout
-            android:padding="20dp"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
+            android:layout_height="match_parent"
+            app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior"
+            android:orientation="vertical">
+
+
             <LinearLayout
-                android:layout_width="0dp"
-                android:layout_weight="1"
+
+                android:layout_width="match_parent"
+                android:paddingTop="30dp"
+                android:paddingHorizontal="20dp"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
-                <TextView
-                    android:layout_width="wrap_content"
+                
+                <LinearLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:text="Tiempo: "/>
-                <TextView
-                    android:id="@+id/TxtTiempo"
-                    android:layout_width="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:layout_weight="1">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="16sp"
+                        android:textColor="@color/white"
+                        android:textStyle="bold"
+                        android:text="Origen"/>
+                    <TextView
+                        android:id="@+id/TxtVieOrigen"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="16sp"
+                        android:textAlignment="center"
+                        android:maxLines="2"
+                        android:textColor="@color/white"
+                        android:text="lol"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:textSize="16sp"
-                    android:text=""/>
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:layout_weight="1">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="16sp"
+                        android:textColor="@color/white"
+                        android:textStyle="bold"
+                        android:text="Destino "/>
+                    <TextView
+                        android:id="@+id/TxtVieDestino"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="16sp"
+                        android:textColor="@color/white"
+                        android:maxLines="2"
+                        android:text="jirensado "/>
+
+                </LinearLayout>
 
             </LinearLayout>
 
+
             <LinearLayout
-                android:layout_width="0dp"
-                android:layout_weight="1"
+                android:paddingTop="15dp"
+                android:paddingHorizontal="20dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:text="Distancia: "/>
-                <TextView
-                    android:id="@+id/TxtDistancia"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="16sp"
-                    android:text=""/>
 
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:layout_weight="1">
+                    <ImageView
+                        android:layout_width="25dp"
+                        android:layout_height="25dp"
+                        android:src="@drawable/timer"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="16sp"
+                        android:textColor="@color/white"
+                        android:textStyle="bold"
+                        android:text="Tiempo y Distancia"/>
+                    <TextView
+                        android:id="@+id/TxtTiempo"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="16sp"
+                        android:textColor="@color/white"
+                        android:text="saitama"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:gravity="center"
+                    android:layout_weight="1">
+                    <ImageView
+                        android:layout_width="25dp"
+                        android:layout_height="25dp"
+                        android:src="@drawable/money"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="16sp"
+                        android:textColor="@color/white"
+                        android:textStyle="bold"
+                        android:text="Precio"/>
+                    <TextView
+                        android:id="@+id/TxtPrecio"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="16sp"
+                        android:textColor="@color/white"
+                        android:text="10500"/>
+                </LinearLayout>
             </LinearLayout>
-
         </LinearLayout>
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@android:color/darker_gray"
-            android:layout_marginHorizontal="20dp"/>
 
 
+    </com.github.florent37.shapeofview.shapes.BubbleView>
 
-        <Button
-            android:id="@+id/btnPedirAhora"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="SOLICITAR AHORA"
-            android:background="@color/colorPrimary"
-            android:textColor="@color/white"
-            android:textStyle="bold"/>
-
-
-
-    </LinearLayout>
+    <Button
+        android:id="@+id/btnPedirAhora"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:text="SOLICITAR AHORA"
+        android:background="@drawable/boton_redondeado"
+        android:backgroundTint="@color/colorPrimary"
+        android:layout_gravity="right|top"
+        android:layout_marginTop="65dp"
+        android:layout_marginRight="20dp"
+        android:textColor="@color/white"
+        android:textStyle="bold"/>
 
     <include
         android:id="@+id/toolbar"

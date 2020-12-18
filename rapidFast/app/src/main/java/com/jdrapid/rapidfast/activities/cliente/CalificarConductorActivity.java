@@ -27,7 +27,7 @@ import com.jdrapid.rapidfast.providers.HistoryBookingProvider;
 import java.util.Date;
 
 public class CalificarConductorActivity extends AppCompatActivity {
-    private TextView mOrigenCalif,mDestinoCalif;
+    private TextView mOrigenCalif,mDestinoCalif,califPrecio;
     private RatingBar mRatingBar;
     private Button mButtonCalificacion;
     private ClienteReservaProvider clienteReservaProvider;
@@ -44,6 +44,7 @@ public class CalificarConductorActivity extends AppCompatActivity {
 
         mOrigenCalif=findViewById(R.id.OrigenCalificacionCliente);
         mDestinoCalif=findViewById(R.id.DestinoCalificacionCliente);
+        califPrecio=findViewById(R.id.CalificacionPreciocon);
         mRatingBar=findViewById(R.id.RtCalificarCliente);
         mButtonCalificacion=findViewById(R.id.CalificarCondcutor);
         mRatingBar=findViewById(R.id.RtCalificarConductor);
@@ -80,6 +81,7 @@ public class CalificarConductorActivity extends AppCompatActivity {
                         mOrigenCalif.setText(clientBooking.getOrigen());
                         mDestinoCalif.setText(clientBooking.getDestino());
                     }
+                    califPrecio.setText("$ "+String.format("%.1f",clientBooking.getPrecio()));
 
 
                     historyBooking=new HistoryBooking(
