@@ -19,9 +19,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.jdrapid.rapidfast.R;
-import com.jdrapid.rapidfast.activities.cliente.MapClienteActivity;
-import com.jdrapid.rapidfast.activities.cliente.RegistroClienteActivity;
-import com.jdrapid.rapidfast.activities.conductor.MapConductorActivity;
+
 import com.jdrapid.rapidfast.includes.ToolBar;
 
 //strings
@@ -41,8 +39,6 @@ public class LoginActivity extends AppCompatActivity {
 
 //    Alert
     AlertDialog alertDialog;
-//    shared
-    SharedPreferences preferences;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -52,15 +48,12 @@ public class LoginActivity extends AppCompatActivity {
         BtnLogin=findViewById(R.id.BtnLogin);
 //        toolbar
         ToolBar.mostrar(this,getString(R.string.ToolBarLogin),true);
-
 //        hacer instancia
         auth=FirebaseAuth.getInstance();
         mDatabase= FirebaseDatabase.getInstance().getReference();
 //        alert instance
         alertDialog=new SpotsDialog.Builder().setContext(LoginActivity.this).setMessage("Espere un momento").build();
 
-//        isntancia del shared
-        preferences=getApplicationContext().getSharedPreferences("typeUser",MODE_PRIVATE);
         
         BtnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -81,16 +74,9 @@ public class LoginActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()){
-                           String tipoUser=preferences.getString("user","");
-                           if (tipoUser.equals("cliente")){
-                               Intent intent=new Intent(LoginActivity.this, MapClienteActivity.class);
-                               intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                               startActivity(intent);
-                           }else {
-                               Intent intent=new Intent(LoginActivity.this, MapConductorActivity.class);
-                               intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                               startActivity(intent);
-                           }
+                            Intent intent=new Intent(LoginActivity.this, MapClienteActivity.class);
+                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                            startActivity(intent);
                         }else{
                             Toast.makeText(LoginActivity.this, LoginActivityemailYpassworsIncorectos,Toast.LENGTH_LONG).show();
                         }

@@ -17,7 +17,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
 import com.jdrapid.rapidfast.R;
-import com.jdrapid.rapidfast.activities.cliente.HistorialSolicitudDetalle;
+import com.jdrapid.rapidfast.activities.HistorialSolicitudDetalle;
 import com.jdrapid.rapidfast.models.HistoryBooking;
 import com.jdrapid.rapidfast.providers.ConductorProvider;
 import com.squareup.picasso.Picasso;

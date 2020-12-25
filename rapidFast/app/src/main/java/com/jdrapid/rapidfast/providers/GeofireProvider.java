@@ -8,8 +8,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 public class GeofireProvider {
-    private DatabaseReference mDatabse;
-    private GeoFire mGeofire;
+    private final DatabaseReference mDatabse;
+    private final GeoFire mGeofire;
 
     public GeofireProvider(String reference){
         mDatabse= FirebaseDatabase.getInstance().getReference().child(reference);

@@ -10,54 +10,30 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@drawable/logo"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/ic_launcher_round"
+        android:roundIcon="@drawable/logo"
         android:supportsRtl="true"
         android:theme="@style/Theme.RapidFast">
-        <activity android:name=".activities.conductor.HistorialDetalleConductor"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".activities.cliente.HistorialSolicitudDetalle"
-            android:parentActivityName=".activities.cliente.HistorialSolicitudClienteActivity"
-            android:screenOrientation="portrait"/>
+        <activity android:name=".activities.LoginTelefono"></activity>
         <activity
-            android:name=".activities.conductor.HistorialSolicitudConductorActivity"
-            android:parentActivityName=".activities.conductor.MapConductorActivity"
+            android:name=".activities.HistorialSolicitudDetalle"
+            android:parentActivityName=".activities.HistorialSolicitudClienteActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".activities.cliente.HistorialSolicitudClienteActivity"
-            android:parentActivityName=".activities.cliente.MapClienteActivity"
+            android:name=".activities.HistorialSolicitudClienteActivity"
+            android:parentActivityName=".activities.MapClienteActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".activities.conductor.ActualizarPerfilConductor"
-            android:parentActivityName=".activities.conductor.MapConductorActivity"
+            android:name=".activities.ActualizarPerfilActivity"
+            android:parentActivityName=".activities.MapClienteActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".activities.cliente.ActualizarPerfilActivity"
-            android:parentActivityName=".activities.cliente.MapClienteActivity"
+            android:name=".activities.CalificarConductorActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".activities.conductor.NotificacionSolicitudActivity"
+            android:name=".activities.MapClienteReservaActivity"
             android:screenOrientation="portrait" />
-        <activity
-            android:name=".activities.cliente.CalificarConductorActivity"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".activities.conductor.CalificacionClienteActivity"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".activities.conductor.MapConductorSolicitud"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".activities.cliente.MapClienteReservaActivity"
-            android:screenOrientation="portrait" />
-
-        <receiver
-            android:name=".receivers.AceptReceiver"
-            android:enabled="true" />
-        <receiver
-            android:name=".receivers.CancelReceiver"
-            android:enabled="true" />
 
         <service android:name=".services.MyFirebaseNotificacionCliente">
             <intent-filter>
@@ -66,40 +42,27 @@
         </service>
 
         <activity
-            android:name=".activities.cliente.SoliciarConductorActivity"
+            android:name=".activities.SoliciarConductorActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".activities.cliente.DetallePedirConductor"
-            android:parentActivityName=".activities.cliente.MapClienteActivity"
+            android:name=".activities.DetallePedirConductor"
+            android:parentActivityName=".activities.MapClienteActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".activities.conductor.MapConductorActivity"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".activities.cliente.MapClienteActivity"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".activities.conductor.RegistroConductorActivity"
-            android:parentActivityName=".activities.SeletAuthOptionActivity"
+            android:name=".activities.MapClienteActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name=".activities.LoginActivity"
-            android:parentActivityName=".activities.SeletAuthOptionActivity"
+            android:parentActivityName=".activities.MainActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".activities.cliente.RegistroClienteActivity"
-            android:parentActivityName=".activities.SeletAuthOptionActivity"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".activities.SeletAuthOptionActivity"
+            android:name=".activities.RegistroClienteActivity"
             android:parentActivityName=".activities.MainActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name=".activities.MainActivity"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".activities.SplashActivity"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait"
+            android:theme="@style/SplashScreen">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

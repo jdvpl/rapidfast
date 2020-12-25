@@ -10,7 +10,7 @@ import com.jdrapid.rapidfast.retrofit.RetrofitCliente;
 import retrofit2.Call;
 
 public class GoogleApiProvider {
-    private Context context;
+    private final Context context;
 
 
     public GoogleApiProvider(Context context) {

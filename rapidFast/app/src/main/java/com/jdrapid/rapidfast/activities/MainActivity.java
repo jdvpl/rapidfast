@@ -7,66 +7,61 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.hbb20.CountryCodePicker;
 import com.jdrapid.rapidfast.R;
-import com.jdrapid.rapidfast.activities.cliente.MapClienteActivity;
-import com.jdrapid.rapidfast.activities.conductor.MapConductorActivity;
+import com.jdrapid.rapidfast.includes.ToolBar;
+
 
 public class MainActivity extends AppCompatActivity {
-    Button mConductor;
-    Button mUsuario;
-//    preferencia para pasar datos
-    SharedPreferences preferences;
+    Button BtnLogin,BtnRegistro,BtnEnviarCodigo;
+    CountryCodePicker codePicker;
+    EditText TxtTelefono;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        setTheme(R.style.SplashScreen);
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        mConductor=findViewById(R.id.BtnConductor);
-        mUsuario=findViewById(R.id.BtnUsuario);
+        setContentView(R.layout.main_ctivity);
 
-        preferences=getApplicationContext().getSharedPreferences("typeUser",MODE_PRIVATE);
-        final SharedPreferences.Editor editor=preferences.edit();
+        codePicker=findViewById(R.id.codigoPais);
+        TxtTelefono=findViewById(R.id.txtTelefono);
 
+        BtnEnviarCodigo=findViewById(R.id.BtnEnviarCodigo);
 
-        mUsuario.setOnClickListener(new View.OnClickListener() {
+        BtnEnviarCodigo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                IraLoginconTelefono();
+            }
+        });
 
-                editor.putString("user","cliente");
-                editor.apply();
-                irSelectAuth();
-            }
-        });
-        mConductor.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                editor.putString("user","conductor");
-                editor.apply();
-                irSelectAuth();
-            }
-        });
+    }
+
+    private void IraLoginconTelefono() {
+        String codigo=codePicker.getSelectedCountryCodeWithPlus();
+        String telefono=TxtTelefono.getText().toString();
+
+        if (!telefono.equals("")) {
+            Intent intenttel = new Intent(MainActivity.this, LoginTelefono.class);
+            intenttel.putExtra("telefono",codigo+telefono);
+            startActivity(intenttel);
+        }else {
+            Toast.makeText(this, "Por favor Ingresa un numero de telefono", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
     protected void onStart() {
         super.onStart();
         if (FirebaseAuth.getInstance().getCurrentUser() != null){
-            String user=preferences.getString("user","");
-            if (user.equals("cliente")){
                 Intent intent=new Intent(MainActivity.this, MapClienteActivity.class);
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 startActivity(intent);
-            }else {
-                Intent intent=new Intent(MainActivity.this, MapConductorActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                startActivity(intent);
-            }
         }
     }
 
-    private void irSelectAuth() {
-        Intent abrirOpcionActivity=new Intent(MainActivity.this,SeletAuthOptionActivity.class);
-        startActivity(abrirOpcionActivity);
-    }
+
 }

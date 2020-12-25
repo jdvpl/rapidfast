@@ -37,5 +37,7 @@
     <string name="marca">Marca</string>
     <string name="marcaCarro">Marca Vehiculo</string>
     <string name="Placa">Placa Vehiculo</string>
+    <string name="Confirmcontrasena">Confirmar Contraseña</string>
+    <string name="EnviarCodigo">Enviar Codigo</string>
 
 </resources>

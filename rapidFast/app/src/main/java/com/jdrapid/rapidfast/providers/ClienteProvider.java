@@ -16,15 +16,18 @@ public class ClienteProvider {
         reference= FirebaseDatabase.getInstance().getReference().child("Usuarios").child("Clientes");
     }
     public Task<Void> create(Cliente cliente){
-        Map<String,Object> map=new HashMap<>();
-        map.put("Nombre",cliente.getNombre());
-        map.put("Correo",cliente.getCorreo());
-        return reference.child(cliente.getId()).setValue(map);
+        return reference.child(cliente.getId()).setValue(cliente);
     }
     public Task<Void> actualizar(Cliente cliente){
         Map<String,Object> map=new HashMap<>();
         map.put("Nombre",cliente.getNombre());
         map.put("imagen",cliente.getImagen());
+        return reference.child(cliente.getId()).updateChildren(map);
+    }
+    public Task<Void> actualizarRegistro(Cliente cliente){
+        Map<String,Object> map=new HashMap<>();
+        map.put("Nombre",cliente.getNombre());
+        map.put("Correo",cliente.getCorreo());
         return reference.child(cliente.getId()).updateChildren(map);
     }
     public DatabaseReference getCliente(String idCliente){

@@ -3,13 +3,14 @@ package com.jdrapid.rapidfast.providers;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.jdrapid.rapidfast.models.ClientBooking;
 
 import java.util.HashMap;
 import java.util.Map;
 
 public class ClienteReservaProvider {
-    private DatabaseReference databaseReference;
+    private final DatabaseReference databaseReference;
     public ClienteReservaProvider() {
         databaseReference= FirebaseDatabase.getInstance().getReference().child("SolicitudesCliente");
 
@@ -41,6 +42,9 @@ public class ClienteReservaProvider {
     }
     public DatabaseReference getClienteSolicitud(String idSolicitudCliente){
         return databaseReference.child(idSolicitudCliente);
+    }
+    public Query getClienteSolicitudByDriver(String idConductor){
+        return databaseReference.orderByChild("idConductor").equalTo(idConductor);
     }
     public Task<Void> borrar(String idCLienteSolicitud){
         return databaseReference.child(idCLienteSolicitud).removeValue();

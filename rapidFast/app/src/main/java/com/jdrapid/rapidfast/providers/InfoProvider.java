@@ -8,7 +8,6 @@ public class InfoProvider {
 
     public InfoProvider() {
         mDatabase= FirebaseDatabase.getInstance().getReference().child("Info");
-
     }
     public DatabaseReference getInfo(){
         return mDatabase;

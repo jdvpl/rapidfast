@@ -11,7 +11,7 @@ import java.util.Map;
 
 public class HistoryBookingProvider {
 
-    private DatabaseReference databaseReference;
+    private final DatabaseReference databaseReference;
     public HistoryBookingProvider() {
         databaseReference= FirebaseDatabase.getInstance().getReference().child("HistorialViajes");
 

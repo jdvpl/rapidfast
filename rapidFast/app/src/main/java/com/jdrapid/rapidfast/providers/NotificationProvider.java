@@ -9,7 +9,7 @@ import com.jdrapid.rapidfast.retrofit.RetrofitCliente;
 import retrofit2.Call;
 
 public class NotificationProvider {
-    private String url="https://fcm.googleapis.com";
+    private final String url="https://fcm.googleapis.com";
 
     public NotificationProvider() {
     }
