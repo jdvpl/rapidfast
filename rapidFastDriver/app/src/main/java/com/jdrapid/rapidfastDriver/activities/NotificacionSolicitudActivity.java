@@ -21,20 +21,22 @@ import com.google.firebase.database.ValueEventListener;
 import com.jdrapid.rapidfastDriver.R;
 import com.jdrapid.rapidfastDriver.providers.AuthProvider;
 import com.jdrapid.rapidfastDriver.providers.ClienteReservaProvider;
+import com.jdrapid.rapidfastDriver.providers.ConductoresEncontradosProvider;
 import com.jdrapid.rapidfastDriver.providers.GeofireProvider;
 
 public class NotificacionSolicitudActivity extends AppCompatActivity {
 
-    private TextView TxtNotificacionOrigen,TxtNotificacionDestino,TxtNotificacionTiempo,TxtNotificacionDistancia,TxtTienCoontador;
+    private TextView TxtNotificacionOrigen,TxtNotificacionDestino,TxtNotificacionTiempo,TxtNotificacionDistancia,TxtTienCoontador,TxtPrecio;
     private Button btnAceptarSolicitud,btnCancelarSolicitud;
 
     private ClienteReservaProvider clienteReservaProvider;
+    private ConductoresEncontradosProvider conductoresEncontradosProvider;
     private GeofireProvider geofireProvider;
     private AuthProvider authProvider;
-    private String mExtraClienteId,mExtraOrigen,MextraDestino,MextraDistacia,mExtraTiempo;
+    private String mExtraClienteId,mExtraOrigen,MextraDestino,MextraDistacia,mExtraTiempo,mExtrasearchById,mExtraPrecio;
 
     private MediaPlayer mediaPlayer;
-    private int contador=25;
+    private int contador=30;
     private Handler handler;
     Runnable runnable=new Runnable() {
         @Override
@@ -66,6 +68,7 @@ public class NotificacionSolicitudActivity extends AppCompatActivity {
         TxtNotificacionTiempo=findViewById(R.id.notificacionTiempo);
         TxtNotificacionDistancia=findViewById(R.id.notificacionDistancia);
         TxtTienCoontador=findViewById(R.id.contadoTiempo);
+        TxtPrecio=findViewById(R.id.notificacionPrecio);
 
         btnAceptarSolicitud=findViewById(R.id.btnAceptarSolicitud);
         btnCancelarSolicitud=findViewById(R.id.btnCancelarSolicitud);
@@ -75,15 +78,21 @@ public class NotificacionSolicitudActivity extends AppCompatActivity {
         MextraDestino=getIntent().getStringExtra("destino");
         mExtraTiempo=getIntent().getStringExtra("tiempo");
         MextraDistacia=getIntent().getStringExtra("distancia");
+        mExtraPrecio=getIntent().getStringExtra("precio");
         mediaPlayer=MediaPlayer.create(this,R.raw.taxi);
         mediaPlayer.setLooping(true);
         clienteReservaProvider=new ClienteReservaProvider();
+        mExtrasearchById=getIntent().getStringExtra("searchById");
+
+        authProvider=new AuthProvider();
+        conductoresEncontradosProvider=new ConductoresEncontradosProvider();
 
 //        asignarle los valores
         TxtNotificacionOrigen.setText(mExtraOrigen);
         TxtNotificacionDestino.setText(MextraDestino);
         TxtNotificacionTiempo.setText(mExtraTiempo);
         TxtNotificacionDistancia.setText(MextraDistacia);
+        TxtPrecio.setText("$"+mExtraPrecio);
 
 
         getWindow().addFlags(
@@ -94,6 +103,7 @@ public class NotificacionSolicitudActivity extends AppCompatActivity {
 
         );
         iniciarTiempo();
+
         ValidarsiCanceloCliente();
         btnAceptarSolicitud.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -115,11 +125,54 @@ public class NotificacionSolicitudActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (!snapshot.exists()){
-                    Toast.makeText(NotificacionSolicitudActivity.this, "El cliente cancelo el viaje", Toast.LENGTH_LONG).show();
-                    if (handler!=null)handler.removeCallbacks(runnable);
-                    Intent intent=new Intent(NotificacionSolicitudActivity.this,MapConductorActivity.class);
-                    startActivity(intent);
-                    finish();
+                    iraMapConductorActividad();
+
+                }
+//                significa que el la solicitud existe
+                else if (snapshot.hasChild("idConductor") && snapshot.hasChild("estado")){
+
+                    String idConductor=snapshot.child("idConductor").getValue().toString();
+                    String estado=snapshot.child("estado").getValue().toString();
+                    if ((estado.equals("Aceptado") || estado.equals("Cancelado")) && !idConductor.equals(authProvider.getId())){
+                        NotificationManager notificationManager=(NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                        notificationManager.cancel(2);
+                        iraMapConductorActividad();
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
+    private void validarsiClientesolicitudAceptado(String idCliente,Context context) {
+        clienteReservaProvider.getClienteSolicitud(idCliente).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()){
+                    if (snapshot.hasChild("idConductor") && snapshot.hasChild("estado")){
+                        String estado=snapshot.child("estado").getValue().toString();
+                        String idconductor=snapshot.child("idConductor").getValue().toString();
+                        if (estado.equals("Creado") && idconductor.equals("")){
+                            clienteReservaProvider.actualizarEstadoandIdDriver(idCliente,"Aceptado",authProvider.getId());
+
+                            Intent intent1=new Intent(context, MapConductorSolicitud.class);
+                            intent1.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                            intent1.setAction(Intent.ACTION_RUN);
+                            intent1.putExtra("idCliente",idCliente);
+                            context.startActivity(intent1);
+                        }else {
+                            iraMapConductorActivity(context);
+                        }
+                    }else {
+                        iraMapConductorActivity(context);
+
+                    }
+                }else {
+                    iraMapConductorActivity(context);
 
                 }
             }
@@ -131,10 +184,30 @@ public class NotificacionSolicitudActivity extends AppCompatActivity {
         });
     }
 
+    private void iraMapConductorActivity(Context context) {
+        Toast.makeText(context, "Otro conductor ya acepto el viaje", Toast.LENGTH_SHORT).show();
+        Intent intent1=new Intent(context, MapConductorActivity.class);
+        intent1.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        intent1.setAction(Intent.ACTION_RUN);
+        context.startActivity(intent1);
+    }
+
+    private void iraMapConductorActividad(){
+        Toast.makeText(NotificacionSolicitudActivity.this, "El cliente ya no esta disponible", Toast.LENGTH_LONG).show();
+        if (handler!=null)handler.removeCallbacks(runnable);
+        Intent intent=new Intent(NotificacionSolicitudActivity.this,MapConductorActivity.class);
+        startActivity(intent);
+        finish();
+    }
+
     private void CancelarViaje() {
         if (handler!=null)handler.removeCallbacks(runnable);
 
-        clienteReservaProvider.actualizarEstado(mExtraClienteId,"Cancelado");
+        if (mExtrasearchById.equals("true")){
+            clienteReservaProvider.actualizarEstado(mExtraClienteId,"Cancelado");
+        }
+
+        conductoresEncontradosProvider.Borrar(authProvider.getId());
 
         NotificationManager notificationManager=(NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancel(2);
@@ -145,21 +218,29 @@ public class NotificacionSolicitudActivity extends AppCompatActivity {
 
     private void aceptarSolicitud() {
         if (handler!=null)handler.removeCallbacks(runnable);
-        authProvider=new AuthProvider();
         geofireProvider=new GeofireProvider("Conductores_Activos");
         geofireProvider.EliminarUbicacion(authProvider.getId());
 
         clienteReservaProvider=new ClienteReservaProvider();
-        clienteReservaProvider.actualizarEstado(mExtraClienteId,"Aceptado");
+
 
         NotificationManager notificationManager=(NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancel(2);
 
-        Intent intent1=new Intent(NotificacionSolicitudActivity.this, MapConductorSolicitud.class);
-        intent1.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        intent1.setAction(Intent.ACTION_RUN);
-        intent1.putExtra("idCliente",mExtraClienteId);
-        startActivity(intent1);
+        if (mExtrasearchById.equals("true")){
+            clienteReservaProvider.actualizarEstado(mExtraClienteId,"Aceptado");
+
+            Intent intent1=new Intent(NotificacionSolicitudActivity.this, MapConductorSolicitud.class);
+            intent1.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            intent1.setAction(Intent.ACTION_RUN);
+            intent1.putExtra("idCliente",mExtraClienteId);
+            intent1.putExtra("searchById",mExtrasearchById);
+            intent1.putExtra("precio",mExtraPrecio);
+            startActivity(intent1);
+        }else {
+            validarsiClientesolicitudAceptado(mExtraClienteId,NotificacionSolicitudActivity.this);
+        }
+
     }
 
     @Override

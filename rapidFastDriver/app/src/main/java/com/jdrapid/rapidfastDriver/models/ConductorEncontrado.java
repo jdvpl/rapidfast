@@ -1,4 +1,4 @@
-package com.jdrapid.rapidfast.models;
+package com.jdrapid.rapidfastDriver.models;
 
 public class ConductorEncontrado {
 

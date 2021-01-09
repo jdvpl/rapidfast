@@ -9,13 +9,17 @@ import androidx.core.content.ContextCompat;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -41,6 +45,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.JointType;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
@@ -53,14 +58,19 @@ import com.jdrapid.rapidfastDriver.R;
 import com.jdrapid.rapidfastDriver.models.FCMBody;
 import com.jdrapid.rapidfastDriver.models.FCMResponse;
 import com.jdrapid.rapidfastDriver.models.Info;
+import com.jdrapid.rapidfastDriver.models.InfoCelular;
 import com.jdrapid.rapidfastDriver.providers.AuthProvider;
 import com.jdrapid.rapidfastDriver.providers.ClienteProvider;
 import com.jdrapid.rapidfastDriver.providers.ClienteReservaProvider;
+import com.jdrapid.rapidfastDriver.providers.ConductoresEncontradosProvider;
 import com.jdrapid.rapidfastDriver.providers.GeofireProvider;
 import com.jdrapid.rapidfastDriver.providers.GoogleApiProvider;
+import com.jdrapid.rapidfastDriver.providers.InfoCelularProvider;
 import com.jdrapid.rapidfastDriver.providers.InfoProvider;
 import com.jdrapid.rapidfastDriver.providers.NotificationProvider;
 import com.jdrapid.rapidfastDriver.providers.TokenProvider;
+import com.jdrapid.rapidfastDriver.services.ForegroundService;
+import com.jdrapid.rapidfastDriver.utils.CarMoveAnim;
 import com.jdrapid.rapidfastDriver.utils.DecodePoints;
 import com.squareup.picasso.Picasso;
 
@@ -98,9 +108,10 @@ public class MapConductorSolicitud extends AppCompatActivity implements OnMapRea
 
     //    textview
     private TextView txtNombreCliente, txtEmailCliente;
-    private TextView txtOrigenCliente, txtDestinoCliente, txtTiempo;
+    private TextView txtOrigenCliente, txtDestinoCliente, txtTiempo,TxtKm;
     private ImageView FotoClientesolicitud;
     private String mExtraClienteId;
+    Button BtnCancelar;
     //    provider del cleinte
     private ClienteProvider clienteProvider;
     private ClienteReservaProvider clienteReservaProvider;
@@ -110,7 +121,9 @@ public class MapConductorSolicitud extends AppCompatActivity implements OnMapRea
     private GoogleApiProvider googleApiProvider;
     private List<LatLng> listaPoligonos;
     private PolylineOptions polylineOptions;
-    private Button btnInicarViaje, BtnFinalizarViaje;
+
+    private Button btnInicarViaje, BtnFinalizarViaje,BtnTelefonoCliente,BtnLlamarSoporte,BtnLlamarPolicia;
+
     private boolean esPrimerVez = true;
     private boolean cercaALCLiente = false;
 
@@ -118,6 +131,8 @@ public class MapConductorSolicitud extends AppCompatActivity implements OnMapRea
     private NotificationProvider notificationProvider;
     private InfoProvider infoProvider;
     private Info info;
+    String km;
+    private Button BtnCancelarTodo;
 
     double distanciametros = 1;
     boolean segundosterminados = false;
@@ -126,6 +141,13 @@ public class MapConductorSolicitud extends AppCompatActivity implements OnMapRea
     Handler mhandler = new Handler();
     boolean comenzoViaje = false;
     Location ubicacionAnterior = new Location("");
+
+    String TelefonoCliente,TelefonoSoporte,TelefonoPolicia,mExtrasearchById;
+    SharedPreferences mPref;
+    SharedPreferences.Editor mEditor;
+    boolean isViajeFinalizado = false;
+    private InfoCelularProvider infoCelularProvider;
+    private ConductoresEncontradosProvider conductoresEncontradosProvider;
 
 
     Runnable runnable = new Runnable() {
@@ -143,6 +165,53 @@ public class MapConductorSolicitud extends AppCompatActivity implements OnMapRea
                 minutos++;
             }
             mhandler.postDelayed(runnable, 1000);
+
+
+        }
+    };
+
+    private boolean mIsStartLocation = false;
+    LatLng mStartLatlng, mEndLatlng;
+    LocationManager mLocationManager;
+
+    LocationListener locationListenerGps = new LocationListener() {
+        @SuppressLint("DefaultLocale")
+        @Override
+        public void onLocationChanged(@NonNull Location location) {
+            latLngUbicacionActual = new LatLng(location.getLatitude(), location.getLongitude());
+
+            if (comenzoViaje) {
+                distanciametros = distanciametros + ubicacionAnterior.distanceTo(location);
+                double distanciaKm=distanciametros/1000;
+                km= String.format("%.2f", distanciaKm);
+
+                TxtKm.setText(String.valueOf(km)+" Km");
+
+
+            }
+            ubicacionAnterior = location;
+
+            if (mStartLatlng != null) {
+                mEndLatlng = mStartLatlng;
+            }
+            mStartLatlng = new LatLng(latLngUbicacionActual.latitude, latLngUbicacionActual.longitude);
+            if (mEndLatlng != null) {
+                CarMoveAnim.carAnim(marker, mEndLatlng, mStartLatlng);
+            }
+            nMap.animateCamera(CameraUpdateFactory.newCameraPosition(
+                    new CameraPosition.Builder()
+                            .target(new LatLng(location.getLatitude(), location.getLongitude()))
+                            .zoom(18f).build()
+
+            ));
+            ActualizarUbicacion();
+        }
+        @Override
+        public void onProviderEnabled(String provider) {}
+        @Override
+        public void onProviderDisabled(String provider) {}
+        @Override
+        public void onStatusChanged(String provider, int status, Bundle extras) {
         }
     };
     LocationCallback locationCallback = new LocationCallback() {
@@ -151,32 +220,37 @@ public class MapConductorSolicitud extends AppCompatActivity implements OnMapRea
             for (Location location : locationResult.getLocations()) {
                 if (getApplicationContext() != null) {
                     latLngUbicacionActual = new LatLng(location.getLatitude(), location.getLongitude());
-                    if (marker != null) {
-                        marker.remove();
-                    }
-                    if (comenzoViaje) {
-                        distanciametros = distanciametros + ubicacionAnterior.distanceTo(location);
-                        Log.d("Distancia ", "onLocationResult: " + distanciametros);
-                    }
+                    if (!mIsStartLocation) {
+                        nMap.clear();
 
-                    ubicacionAnterior = location;
-                    marker = nMap.addMarker(new MarkerOptions().position(new LatLng(
-                                    location.getLatitude(), location.getLongitude())
-                            ).title("Mi Ubicacion").icon(BitmapDescriptorFactory.fromResource(R.drawable.car))
-                    );
+                        marker = nMap.addMarker(new MarkerOptions().position(new LatLng(
+                                        location.getLatitude(), location.getLongitude())
+                                ).title("Mi Ubicacion").icon(BitmapDescriptorFactory.fromResource(R.drawable.carrorappid))
+                        );
 //                    obtener la ubicacion del usuario en tiempo real
-                    nMap.moveCamera(CameraUpdateFactory.newCameraPosition(
-                            new CameraPosition.Builder()
-                                    .target(new LatLng(location.getLatitude(), location.getLongitude()))
-                                    .zoom(16f).build()
+                        nMap.moveCamera(CameraUpdateFactory.newCameraPosition(
+                                new CameraPosition.Builder()
+                                        .target(new LatLng(location.getLatitude(), location.getLongitude()))
+                                        .zoom(16f).build()
 
-                    ));
-                    ActualizarUbicacion();
+                        ));
+                        ActualizarUbicacion();
 
-                    if (esPrimerVez) {
-                        esPrimerVez = false;
-                        obtenerClienteSolicitudInfo();
+                        if (esPrimerVez) {
+                            esPrimerVez = false;
+                            obtenerClienteSolicitudInfo();
+                        }
+                        mIsStartLocation = true;
+                        if (ActivityCompat.checkSelfPermission(MapConductorSolicitud.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(MapConductorSolicitud.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+
+                            return;
+                        }
+                        mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2000, 10, locationListenerGps);
+                        stopLocation();
                     }
+
+
+
 
                 }
             }
@@ -201,24 +275,106 @@ public class MapConductorSolicitud extends AppCompatActivity implements OnMapRea
 
         txtNombreCliente = findViewById(R.id.txtclientenombne);
         txtEmailCliente = findViewById(R.id.txtemailcliente);
+        mLocationManager=(LocationManager)getSystemService(Context.LOCATION_SERVICE);
 
         txtOrigenCliente = findViewById(R.id.txtclienteOrigen);
         txtDestinoCliente = findViewById(R.id.txtclienteDestino);
         txtTiempo = findViewById(R.id.texttiempo);
+        TxtKm = findViewById(R.id.txtKilometros);
         btnInicarViaje = findViewById(R.id.btnInicarViaje);
+        BtnCancelar=findViewById(R.id.btnCancelar);
+        BtnCancelarTodo=findViewById(R.id.btnCancelartodo);
+        mExtrasearchById=getIntent().getStringExtra("searchById");
+
+        BtnTelefonoCliente = findViewById(R.id.btnLlamarCliente);
+        BtnLlamarSoporte = findViewById(R.id.btnLamarSoporte);
+        BtnLlamarPolicia = findViewById(R.id.btnLamarPolicia);
+
         BtnFinalizarViaje = findViewById(R.id.btnFinalizarViaje);
         FotoClientesolicitud = findViewById(R.id.fotoCLienteBooking);
+        conductoresEncontradosProvider=new ConductoresEncontradosProvider();
+
+        mPref=getApplicationContext().getSharedPreferences("RideSatus",MODE_PRIVATE);
+        mEditor=mPref.edit();
+
 
         clienteReservaProvider = new ClienteReservaProvider();
         infoProvider = new InfoProvider();
+        infoCelularProvider=new InfoCelularProvider();
+
 
         mExtraClienteId = getIntent().getStringExtra("idCliente");
 //        dibujar mapa
         googleApiProvider = new GoogleApiProvider(MapConductorSolicitud.this);
         notificationProvider = new NotificationProvider();
+        ObtenerCelulares();
         obtenerCliente();
         obtenerPrecio();
 
+        BtnCancelar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+//                Intent intent=new Intent(MapClienteReservaActivity.this,MapClienteReservaActivity.class);
+//                startActivity(intent);
+
+                startActivity(getIntent());
+            }
+        });
+
+        BtnTelefonoCliente.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (ActivityCompat.checkSelfPermission(MapConductorSolicitud.this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(MapConductorSolicitud.this, new String[]{Manifest.permission.CALL_PHONE}, 101);
+                    return;
+                }
+                if (TelefonoCliente.equals("")){
+                    Toast.makeText(MapConductorSolicitud.this, "El Conductor no tiene un numero de telefono asociado", Toast.LENGTH_SHORT).show();
+                }else {
+
+                    Intent intent = new Intent(Intent.ACTION_CALL);
+                    intent.setData(Uri.parse("tel:" + TelefonoCliente));
+                    startActivity(intent);
+                }
+
+            }
+        });
+        BtnLlamarSoporte.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (ActivityCompat.checkSelfPermission(MapConductorSolicitud.this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(MapConductorSolicitud.this, new String[]{Manifest.permission.CALL_PHONE}, 102);
+                    return;
+                }
+                if (TelefonoSoporte.equals("")){
+                    Toast.makeText(MapConductorSolicitud.this, "El Conductor no tiene un numero de telefono asociado", Toast.LENGTH_SHORT).show();
+                }else {
+
+                    Intent intent = new Intent(Intent.ACTION_CALL);
+                    intent.setData(Uri.parse("tel:" + TelefonoSoporte));
+                    startActivity(intent);
+                }
+
+            }
+        });
+
+        BtnLlamarPolicia.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (ActivityCompat.checkSelfPermission(MapConductorSolicitud.this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+                    ActivityCompat.requestPermissions(MapConductorSolicitud.this, new String[]{Manifest.permission.CALL_PHONE}, 103);
+                    return;
+                }
+                if (TelefonoPolicia.equals("")){
+                    Toast.makeText(MapConductorSolicitud.this, "El Conductor no tiene un numero de telefono asociado", Toast.LENGTH_SHORT).show();
+                }else {
+                    Intent intent = new Intent(Intent.ACTION_CALL);
+                    intent.setData(Uri.parse("tel:" + TelefonoPolicia));
+                    startActivity(intent);
+                }
+
+            }
+        });
         btnInicarViaje.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -235,7 +391,94 @@ public class MapConductorSolicitud extends AppCompatActivity implements OnMapRea
                 finalizarBooking();
             }
         });
+
+        BtnCancelarTodo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent=new Intent(MapConductorSolicitud.this,MapConductorActivity.class);
+                startActivity(intent);
+                finish();
+                mEditor.clear().commit();
+//                CancelarViaje();
+                Toast.makeText(MapConductorSolicitud.this, "Viaje cancelado", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
+
+    private void CancelarViaje() {
+        conductoresEncontradosProvider.Borrar(authProvider.getId());
+        NotificationManager notificationManager=(NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.cancel(2);
+
+    }
+
+
+    private void stopLocation(){
+        if (locationCallback != null && fusedLocation != null) {
+            fusedLocation.removeLocationUpdates(locationCallback);
+        }
+    }
+
+    private void ObtenerCelulares(){
+        infoCelularProvider.getInfo().addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()){
+                    InfoCelular infoCelular=snapshot.getValue(InfoCelular.class);
+                    String soporte=infoCelular.getSoporteCel();
+                    String policia=infoCelular.getPoliciaCel();
+
+                    if (!soporte.equals("")){
+                        TelefonoSoporte=soporte;
+                    }
+                    if (!policia.equals("")){
+                        TelefonoPolicia=policia;
+                    }
+
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        removerUbicacion();
+        stopLocation();
+
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (!isViajeFinalizado){
+            StartService();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        StopService();
+    }
+
+    private void StartService(){
+        stopLocation();
+        Intent service=new Intent(this, ForegroundService.class);
+        ContextCompat.startForegroundService(MapConductorSolicitud.this,service);
+    }
+    private void StopService(){
+        startLocation();
+        Intent service=new Intent(this, ForegroundService.class);
+        stopService(service);
+    }
+
 
     @Override
     public void onBackPressed() {
@@ -274,10 +517,12 @@ public class MapConductorSolicitud extends AppCompatActivity implements OnMapRea
         clienteReservaProvider.actualizarHistoryBooking(mExtraClienteId).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
+                isViajeFinalizado=true;
+                //con esto limpiamos todos los datos de sharepreference
+                mEditor.clear().commit();
                 EnviarNotificacion("Viaje Finalizado");
-                if (fusedLocation != null) {
-                    fusedLocation.removeLocationUpdates(locationCallback);
-                }
+                removerUbicacion();
+                stopLocation();
                 if (mhandler != null) {
                     mhandler.removeCallbacks(runnable);
 
@@ -291,18 +536,27 @@ public class MapConductorSolicitud extends AppCompatActivity implements OnMapRea
     }
 
     private void inicarBooking() {
+        mEditor.putString("status","Iniciar");
+        mEditor.putString("idCliente",mExtraClienteId);
+        mEditor.apply();
+
         clienteReservaProvider.actualizarEstado(mExtraClienteId, "Iniciar");
         btnInicarViaje.setVisibility(View.GONE);
         BtnFinalizarViaje.setVisibility(View.VISIBLE);
         nMap.clear();
+
         nMap.addMarker(new MarkerOptions().position(mDestinoLatlng).title("Destino").icon(BitmapDescriptorFactory.fromResource(R.drawable.pin)));
+        if (latLngUbicacionActual !=null){
+            marker = nMap.addMarker(new MarkerOptions().position(new LatLng(
+                            latLngUbicacionActual.latitude, latLngUbicacionActual.longitude)
+                    ).title("Mi Ubicacion").icon(BitmapDescriptorFactory.fromResource(R.drawable.carrorappid))
+            );
+        }
         DibujarRuta(mDestinoLatlng);
         EnviarNotificacion("Viaje Iniciado");
         comenzoViaje = true;
         mhandler.postDelayed(runnable, 1000);
-
     }
-
     private void obtenerPrecio() {
         infoProvider.getInfo().addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -350,8 +604,22 @@ public class MapConductorSolicitud extends AppCompatActivity implements OnMapRea
                     mDestinoLatlng = new LatLng(destinoLat, destinoLon);
                     txtOrigenCliente.setText("Recoger en: " + origen);
                     txtDestinoCliente.setText("Destino: " + destino);
-                    nMap.addMarker(new MarkerOptions().position(mOriginLatlng).title("Recoger Aqui").icon(BitmapDescriptorFactory.fromResource(R.drawable.pin)));
-                    DibujarRuta(mOriginLatlng);
+
+                    mPref=getApplicationContext().getSharedPreferences("RideStatus",MODE_PRIVATE);
+                    mEditor=mPref.edit();
+                    String status=mPref.getString("status","");
+                    if (status.equals("Iniciar")){
+                        inicarBooking();
+                    }else {
+                        mEditor.putString("status","ride");
+                        mEditor.putString("idCliente",mExtraClienteId);
+                        mEditor.apply();
+
+                        nMap.addMarker(new MarkerOptions().position(mOriginLatlng).title("Recoger Aqui").icon(BitmapDescriptorFactory.fromResource(R.drawable.pin)));
+                        DibujarRuta(mOriginLatlng);
+                    }
+
+
                 }
             }
 
@@ -367,15 +635,22 @@ public class MapConductorSolicitud extends AppCompatActivity implements OnMapRea
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {
-//                    String email = snapshot.child("correo").getValue().toString();
+
                     String nombre = snapshot.child("Nombre").getValue().toString();
+                    String telefono=snapshot.child("telefono").getValue().toString();
+                    TelefonoCliente=telefono;
                     String imagen = "";
                     if (snapshot.hasChild("imagen")) {
                         imagen = snapshot.child("imagen").getValue().toString();
                         Picasso.with(MapConductorSolicitud.this).load(imagen).into(FotoClientesolicitud);
                     }
+                    if (snapshot.hasChild("Correo"))
+                    {
+                        String email = snapshot.child("Correo").getValue().toString();
+                        txtEmailCliente.setText(email);
+
+                    }
                     txtNombreCliente.setText(nombre);
-                    txtEmailCliente.setText("kakaroto");
                 }
             }
 
@@ -398,7 +673,7 @@ public class MapConductorSolicitud extends AppCompatActivity implements OnMapRea
                     String puntos = poligonos.getString("points");
                     listaPoligonos = DecodePoints.decodePoly(puntos);
                     polylineOptions = new PolylineOptions();
-                    polylineOptions.color(Color.BLUE);
+                    polylineOptions.color(Color.BLACK);
                     polylineOptions.width(20f);
                     polylineOptions.startCap(new SquareCap());
                     polylineOptions.jointType(JointType.ROUND);
@@ -435,9 +710,9 @@ public class MapConductorSolicitud extends AppCompatActivity implements OnMapRea
             if (!cercaALCLiente) {
                 if (mOriginLatlng != null && latLngUbicacionActual != null) {
                     double distancia = obtenerDistanciaConClien(mOriginLatlng, latLngUbicacionActual);
-                    if (distancia <= 300) {
-                        btnInicarViaje.setEnabled(true);
+                    if (distancia <= 300 && distancia>0) {
                         cercaALCLiente = true;
+                        btnInicarViaje.setEnabled(true);
                         int distanciacon = (int) distancia;
                         Toast.makeText(this, "Esta Cerca a la posicion del cliente estas a " + distanciacon + " metros", Toast.LENGTH_SHORT).show();
                     }
@@ -454,8 +729,7 @@ public class MapConductorSolicitud extends AppCompatActivity implements OnMapRea
     @Override
     public void onMapReady(GoogleMap googleMap) {
         nMap = googleMap;
-        nMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
-
+        nMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this,R.raw.estilo_mapa));
         locationRequest = new LocationRequest();
         locationRequest.setInterval(1000);
         locationRequest.setFastestInterval(1000);
@@ -530,6 +804,7 @@ public class MapConductorSolicitud extends AppCompatActivity implements OnMapRea
     }
 
 
+
     private void desconectado(){
 
         if (fusedLocation !=null){
@@ -548,7 +823,6 @@ public class MapConductorSolicitud extends AppCompatActivity implements OnMapRea
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)==PackageManager.PERMISSION_GRANTED){
                 if (gpsActivado()){
                     fusedLocation.requestLocationUpdates(locationRequest,locationCallback, Looper.myLooper());
-                    nMap.setMyLocationEnabled(true);
                 }else {
                     ShowAlertGPS();
                 }
@@ -580,6 +854,12 @@ public class MapConductorSolicitud extends AppCompatActivity implements OnMapRea
             }else {
                 ActivityCompat.requestPermissions(MapConductorSolicitud.this,new String[]{Manifest.permission.ACCESS_FINE_LOCATION},LOCATION_REQUEST_CODE);
             }
+        }
+    }
+
+    private void removerUbicacion(){
+        if (locationListenerGps !=null){
+            mLocationManager.removeUpdates(locationListenerGps);
         }
     }
 

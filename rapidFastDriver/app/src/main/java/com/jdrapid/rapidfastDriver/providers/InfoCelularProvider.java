@@ -1,4 +1,4 @@
-package com.jdrapid.rapidfast.providers;
+package com.jdrapid.rapidfastDriver.providers;
 
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;

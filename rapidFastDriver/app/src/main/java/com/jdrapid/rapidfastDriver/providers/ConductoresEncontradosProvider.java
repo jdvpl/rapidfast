@@ -1,10 +1,10 @@
-package com.jdrapid.rapidfast.providers;
+package com.jdrapid.rapidfastDriver.providers;
 
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
-import com.jdrapid.rapidfast.models.ConductorEncontrado;
+import com.jdrapid.rapidfastDriver.models.ConductorEncontrado;
 
 
 public class ConductoresEncontradosProvider {
@@ -20,5 +20,8 @@ public class ConductoresEncontradosProvider {
     //si un conductor ya recibio o esta recibiendo la notificacion
     public Query ObtnerConductorEncontradoByID(String iDConductor){
         return  databaseReference.orderByChild("idConductor").equalTo(iDConductor);
+    }
+    public Task<Void> Borrar(String IdCondutor){
+        return databaseReference.child(IdCondutor).removeValue();
     }
 }

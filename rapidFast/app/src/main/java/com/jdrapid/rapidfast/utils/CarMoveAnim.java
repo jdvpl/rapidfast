@@ -1,4 +1,4 @@
-package com.jdrapid.rapidfastDriver.utils;
+package com.jdrapid.rapidfast.utils;
 
 import android.animation.ValueAnimator;
 import android.util.Log;

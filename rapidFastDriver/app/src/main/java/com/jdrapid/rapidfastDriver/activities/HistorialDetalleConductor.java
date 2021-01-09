@@ -12,6 +12,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
 import com.jdrapid.rapidfastDriver.R;
+import com.jdrapid.rapidfastDriver.includes.ToolBar;
 import com.jdrapid.rapidfastDriver.models.HistoryBooking;
 import com.jdrapid.rapidfastDriver.providers.ClienteProvider;
 import com.jdrapid.rapidfastDriver.providers.HistoryBookingProvider;
@@ -31,6 +32,7 @@ public class HistorialDetalleConductor extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_historial_detalle_conductor);
+        ToolBar.mostrar(HistorialDetalleConductor.this,"",true);
 
         txtNombredetalle=findViewById(R.id.nombresolicituddetalle);
         txtOrigenDetalle=findViewById(R.id.OringenDetalle);
@@ -38,20 +40,12 @@ public class HistorialDetalleConductor extends AppCompatActivity {
         txtCalificacionDetalle=findViewById(R.id.calificacionDetalle);
         ratingBardetalle=findViewById(R.id.ratingbarSolicitudDetalle);
         circleImageConductor=findViewById(R.id.fotodeSolicituddetalle);
-        circleatras=findViewById(R.id.circleimageback);
 
         mExtraid=getIntent().getStringExtra("idHistorialSolicitud");
 
         bookingProvider=new HistoryBookingProvider();
         clienteProvider=new ClienteProvider();
         obtenerInformacionHistorial();
-        circleatras.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                finish();
-            }
-        });
-
 
 
     }

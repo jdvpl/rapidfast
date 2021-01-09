@@ -26,15 +26,17 @@
                 android:layout_height="wrap_content"
                 android:text="Cantidad"
                 android:layout_margin="10dp"/>
+
             <Button
                 android:id="@+id/BtnAgregar"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Agregar"
                 android:layout_marginTop="10dp"
                 android:background="@drawable/boton_redondeado"
                 android:backgroundTint="@color/colorPrimary"
-                android:textColor="@color/white"/>
+                android:fontFamily="@font/aldrich"
+                android:text="Agregar"
+                android:textColor="@color/white" />
         </LinearLayout>
 
         <androidx.recyclerview.widget.RecyclerView

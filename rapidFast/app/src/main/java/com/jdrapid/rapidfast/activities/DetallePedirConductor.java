@@ -19,6 +19,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.JointType;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.maps.model.SquareCap;
@@ -45,14 +46,14 @@ public class DetallePedirConductor extends AppCompatActivity implements OnMapRea
     private GoogleMap nMap;
     private SupportMapFragment mapFragment;
 //
-    private double mExtraorigenLat,mExtraorigenLong,mExtraDestinoLat,mExtraDestinoLon;
-    private String mExtraOrigen,mExtraDestino;
+    private double mExtraorigenLat,mExtraorigenLong,mExtraDestinoLat,mExtraDestinoLon,mExtraConductorLat,mExtraConductorLon;
+    private String mExtraOrigen,mExtraDestino,mExtraConductorId;
 
     private LatLng mOriginLatlng,mDestinoLatlng;
     private GoogleApiProvider googleApiProvider;
     private List<LatLng> listaPoligonos;
     private PolylineOptions polylineOptions;
-
+    double precio;
     TextView TxtOrigen,TxtDestino,TxtTiempo,TxtPrecio;
     private Button BtnPedirConductor;
 
@@ -74,6 +75,11 @@ public class DetallePedirConductor extends AppCompatActivity implements OnMapRea
         mExtraorigenLong=getIntent().getDoubleExtra("origin_lon",0);
         mExtraDestinoLat=getIntent().getDoubleExtra("destino_lat",0);
         mExtraDestinoLon=getIntent().getDoubleExtra("destino_lon",0);
+
+        mExtraConductorId=getIntent().getStringExtra("idConductor");
+        mExtraConductorLat=getIntent().getDoubleExtra("Conductor_lat",0);
+        mExtraConductorLon=getIntent().getDoubleExtra("Conductor_lon",0);
+
 //        origen y destino
         mExtraOrigen=getIntent().getStringExtra("Origen");
         mExtraDestino=getIntent().getStringExtra("Destino");
@@ -96,7 +102,12 @@ public class DetallePedirConductor extends AppCompatActivity implements OnMapRea
         BtnPedirConductor.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                SolicitarConductor();
+                //solo para un condcutor especifico
+                if (mExtraConductorId !=null){
+                    SolicitarConductorEspecifico();
+                }else {
+                    SolicitarConductor();
+                }
             }
         });
     }
@@ -110,6 +121,25 @@ public class DetallePedirConductor extends AppCompatActivity implements OnMapRea
         intent.putExtra("destino",mExtraDestino);
         intent.putExtra("destino_lat",mDestinoLatlng.latitude);
         intent.putExtra("destino_lon",mDestinoLatlng.longitude);
+        intent.putExtra("precio",precio);
+
+        startActivity(intent);
+        finish();
+    }
+
+    private void SolicitarConductorEspecifico() {
+        Intent intent=new Intent(DetallePedirConductor.this,SolicitarConductorByIdActivity.class);
+        intent.putExtra("origin_lat",mOriginLatlng.latitude);
+        intent.putExtra("origin_lon",mOriginLatlng.longitude);
+        intent.putExtra("origen",mExtraOrigen);
+//        destino
+        intent.putExtra("destino",mExtraDestino);
+        intent.putExtra("destino_lat",mDestinoLatlng.latitude);
+        intent.putExtra("destino_lon",mDestinoLatlng.longitude);
+
+        intent.putExtra("idConductor",mExtraConductorId);
+        intent.putExtra("Conductor_lat",mExtraConductorLat);
+        intent.putExtra("Conductor_lon",mExtraConductorLon);
         startActivity(intent);
         finish();
     }
@@ -177,9 +207,9 @@ public class DetallePedirConductor extends AppCompatActivity implements OnMapRea
                     double totalDistancia=distanciaValor*info.getKm();
                     double totalDuracion=duracionCValor*info.getMin();
                     double total=totalDistancia+totalDuracion;
-                    double mintotal=total-200;
                     double maxtotal=total+200;
-                    TxtPrecio.setText("$ "+mintotal+"-"+maxtotal);
+                    precio=maxtotal;
+                    TxtPrecio.setText("$ "+maxtotal);
                 }
             }
 
@@ -193,7 +223,7 @@ public class DetallePedirConductor extends AppCompatActivity implements OnMapRea
     @Override
     public void onMapReady(GoogleMap googleMap) {
         nMap = googleMap;
-        nMap.setMapType(GoogleMap.MAP_TYPE_TERRAIN);
+        nMap.setMapStyle(MapStyleOptions.loadRawResourceStyle(this,R.raw.estilo_mapa));
         nMap.getUiSettings().setZoomControlsEnabled(true);
         nMap.addMarker(new MarkerOptions().position(mOriginLatlng).title("Origen").icon(BitmapDescriptorFactory.fromResource(R.drawable.pin)));
         nMap.addMarker(new MarkerOptions().position(mDestinoLatlng).title("Destino").icon(BitmapDescriptorFactory.fromResource(R.drawable.pin)));

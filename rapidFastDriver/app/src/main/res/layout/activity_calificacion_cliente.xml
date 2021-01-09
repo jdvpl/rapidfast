@@ -46,6 +46,14 @@
 
         </com.github.florent37.shapeofview.shapes.ArcView>
 
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -107,18 +115,24 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginTop="30dp"/>
+
+
+                <Button
+                    android:id="@+id/CalificarCliente"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Calificar Cliente"
+                    android:background="@drawable/boton_redondeado"
+                    android:backgroundTint="@color/colorPrimaryDark"
+                    android:textColor="@color/white"
+                    android:textStyle="bold"
+                    android:layout_margin="40dp"/>
+
+            </LinearLayout>
+        </ScrollView>
+
     </LinearLayout>
-    <Button
-        android:id="@+id/CalificarCliente"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:text="Calificar Cliente"
-        android:background="@drawable/boton_redondeado"
-        android:backgroundTint="@color/colorPrimaryDark"
-        android:textColor="@color/white"
-        android:textStyle="bold"
-        android:layout_margin="20dp"/>
+
 
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

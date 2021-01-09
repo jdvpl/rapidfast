@@ -20,12 +20,13 @@ public class ClientBooking {
 
     }
 
-    public ClientBooking(String idCliente, String idConductor, String destino, String origen, String tiempo, String distanciaKm, String estado, double origenLat, double origenLong, double destinoLat, double destinoLong) {
+    public ClientBooking(String idCliente, String idConductor, String destino, String origen, String tiempo, double precio ,String distanciaKm, String estado, double origenLat, double origenLong, double destinoLat, double destinoLong) {
         this.idCliente = idCliente;
         this.idConductor = idConductor;
         this.Destino = destino;
         this.Origen = origen;
         this.tiempo = tiempo;
+        this.precio=precio;
         this.distanciaKm = distanciaKm;
         this.estado = estado;
         this.origenLat = origenLat;

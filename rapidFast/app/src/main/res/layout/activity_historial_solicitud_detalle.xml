@@ -38,6 +38,16 @@
                 android:layout_marginHorizontal="30dp"/>
 
         </com.github.florent37.shapeofview.shapes.ArcView>
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+
         <ImageView
 
             android:layout_width="40dp"
@@ -87,7 +97,8 @@
             android:layout_marginTop="20dp"
             android:layout_marginHorizontal="40dp"/>
 
-
+            </LinearLayout>
+        </ScrollView>
 
     </LinearLayout>
     <de.hdodenhof.circleimageview.CircleImageView

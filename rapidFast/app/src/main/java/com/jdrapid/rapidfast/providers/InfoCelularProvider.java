@@ -3,11 +3,11 @@ package com.jdrapid.rapidfast.providers;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
-public class InfoProvider {
+public class InfoCelularProvider {
     DatabaseReference mDatabase;
 
-    public InfoProvider() {
-        mDatabase= FirebaseDatabase.getInstance().getReference().child("Info");
+    public InfoCelularProvider() {
+        mDatabase= FirebaseDatabase.getInstance().getReference().child("InfoCelulares");
     }
     public DatabaseReference getInfo(){
         return mDatabase;

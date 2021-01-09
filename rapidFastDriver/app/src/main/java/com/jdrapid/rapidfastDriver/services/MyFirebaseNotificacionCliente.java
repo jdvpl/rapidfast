@@ -47,12 +47,15 @@ public class MyFirebaseNotificacionCliente  extends FirebaseMessagingService {
                     String destino=data.get("destino");
                     String tiempo=data.get("tiempo");
                     String distancia=data.get("distancia");
-                    MostrarNotificacionesOreoAcciones(titulo,body,idCliente);
-                    MostarNotificacionaActivty(idCliente,origen,destino,tiempo,distancia);
+                    String searchById=data.get("searchById");
+                    String precio=data.get("precio");
+                    MostrarNotificacionesOreoAcciones(titulo,body,idCliente,searchById);
+                    MostarNotificacionaActivty(idCliente,origen,destino,tiempo,distancia,searchById,precio);
                 }else  if (titulo.contains("VIAJE CANCELADO")){
                     NotificationManager notificationManager=(NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+//                    eliminando la notificacion de solicitud de viaje
                     notificationManager.cancel(2);
-                    MostrarNotificacionesOreo(titulo, body);
+                   // MostrarNotificacionesOreo(titulo, body);
                 }
                 else {
                     MostrarNotificacionesOreo(titulo, body);
@@ -64,12 +67,14 @@ public class MyFirebaseNotificacionCliente  extends FirebaseMessagingService {
                     String destino=data.get("destino");
                     String tiempo=data.get("tiempo");
                     String distancia=data.get("distancia");
-                    mostrarNotioficacionAccion(titulo,body,idCliente);
-                    MostarNotificacionaActivty(idCliente,origen,destino,tiempo,distancia);
+                    String searchById=data.get("searchById");
+                    String precio=data.get("precio");
+                    mostrarNotioficacionAccion(titulo,body,idCliente,searchById);
+                    MostarNotificacionaActivty(idCliente,origen,destino,tiempo,distancia,searchById,precio);
                 }else  if (titulo.contains("VIAJE CANCELADO")){
                     NotificationManager notificationManager=(NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
                     notificationManager.cancel(2);
-                    mostrarNotioficacion(titulo, body);
+                   // mostrarNotioficacion(titulo, body);
                 }
                 else {
                     mostrarNotioficacion(titulo, body);
@@ -78,7 +83,7 @@ public class MyFirebaseNotificacionCliente  extends FirebaseMessagingService {
         }
     }
 
-    private void MostarNotificacionaActivty(String idCliente, String origen, String destino, String tiempo, String distancia) {
+    private void MostarNotificacionaActivty(String idCliente, String origen, String destino, String tiempo, String distancia,String searchById,String precio) {
 
         PowerManager powerManager=(PowerManager) getBaseContext().getSystemService(Context.POWER_SERVICE);
         boolean estencendiada=powerManager.isScreenOn();
@@ -99,7 +104,8 @@ public class MyFirebaseNotificacionCliente  extends FirebaseMessagingService {
         intent.putExtra("destino",destino);
         intent.putExtra("tiempo",tiempo);
         intent.putExtra("distancia",distancia);
-
+        intent.putExtra("searchById",searchById);
+        intent.putExtra("precio",precio);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         startActivity(intent);
     }
@@ -112,16 +118,19 @@ public class MyFirebaseNotificacionCliente  extends FirebaseMessagingService {
         notificationHelper.getManager().notify(1,builder.build());
     }
 
-    private void mostrarNotioficacionAccion(String Titulo, String Contenido,String IdCliente) {
+    private void mostrarNotioficacionAccion(String Titulo, String Contenido,String IdCliente,String searchById) {
 //        aceptar
         Intent AceptarIntet=new Intent(this, AceptReceiver.class);
         AceptarIntet.putExtra("idCliente", IdCliente);
+        AceptarIntet.putExtra("searchById", searchById);
         PendingIntent AceptarpendingIntent=PendingIntent.getBroadcast(this, NOTIFICACION_CODIGO,AceptarIntet,PendingIntent.FLAG_UPDATE_CURRENT);
         NotificationCompat.Action aceptarAccion=new NotificationCompat.Action.Builder(R.mipmap.ic_launcher,
                 "Aceptar",AceptarpendingIntent).build();
 //        cancelar
         Intent cancelarIntet=new Intent(this, CancelReceiver.class);
         cancelarIntet.putExtra("idCliente", IdCliente);
+        cancelarIntet.putExtra("searchById",searchById);
+
         PendingIntent cancelarPnendin=PendingIntent.getBroadcast(this, NOTIFICACION_CODIGO,cancelarIntet,PendingIntent.FLAG_UPDATE_CURRENT);
         NotificationCompat.Action CancelarAccion=new NotificationCompat.Action.Builder(R.mipmap.ic_launcher,
                 "Cancelar",cancelarPnendin).build();
@@ -142,16 +151,19 @@ public class MyFirebaseNotificacionCliente  extends FirebaseMessagingService {
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
-    private void MostrarNotificacionesOreoAcciones(String title, String body,String idCliente) {
+    private void MostrarNotificacionesOreoAcciones(String title, String body,String idCliente,String searchById) {
 //        aceptar
         Intent AceptarIntet=new Intent(this, AceptReceiver.class);
         AceptarIntet.putExtra("idCliente", idCliente);
+        AceptarIntet.putExtra("searchById", searchById);
         PendingIntent AceptarpendingIntent=PendingIntent.getBroadcast(this, NOTIFICACION_CODIGO,AceptarIntet,PendingIntent.FLAG_UPDATE_CURRENT);
         Notification.Action aceptarAccion=new Notification.Action.Builder(R.mipmap.ic_launcher,
                 "Aceptar",AceptarpendingIntent).build();
 //        cancekar
         Intent CancelarIntet=new Intent(this, CancelReceiver.class);
         CancelarIntet.putExtra("idCliente", idCliente);
+        CancelarIntet.putExtra("searchById",searchById);
+
         PendingIntent CancelarpendingIntent=PendingIntent.getBroadcast(this, NOTIFICACION_CODIGO,CancelarIntet,PendingIntent.FLAG_UPDATE_CURRENT);
         Notification.Action cancelarAccion=new Notification.Action.Builder(R.mipmap.ic_launcher,
                 "Cancelar",CancelarpendingIntent).build();

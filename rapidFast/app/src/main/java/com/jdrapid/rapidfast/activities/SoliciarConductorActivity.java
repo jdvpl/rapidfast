@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
@@ -22,12 +23,14 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
 import com.jdrapid.rapidfast.R;
 import com.jdrapid.rapidfast.models.ClientBooking;
+import com.jdrapid.rapidfast.models.ConductorEncontrado;
 import com.jdrapid.rapidfast.models.FCMBody;
 import com.jdrapid.rapidfast.models.FCMResponse;
 import com.jdrapid.rapidfast.providers.AuthProvider;
 import com.jdrapid.rapidfast.providers.ClienteProvider;
 import com.jdrapid.rapidfast.providers.ClienteReservaProvider;
 import com.jdrapid.rapidfast.providers.ConductorProvider;
+import com.jdrapid.rapidfast.providers.ConductoresEncontradosProvider;
 import com.jdrapid.rapidfast.providers.GeofireProvider;
 import com.jdrapid.rapidfast.providers.GoogleApiProvider;
 import com.jdrapid.rapidfast.providers.NotificationProvider;
@@ -74,6 +77,7 @@ public class SoliciarConductorActivity extends AppCompatActivity {
     private GoogleApiProvider googleApiProvider;
     private ConductorProvider conductorProvider;
     private ClienteProvider clienteProvider;
+    private ConductoresEncontradosProvider conductoresEncontradosProvider;
 //    escuhador
     private ValueEventListener mlistener;
     LottieAnimationView animationView;
@@ -87,7 +91,9 @@ public class SoliciarConductorActivity extends AppCompatActivity {
     private ArrayList<String> mConductoresFounList=new ArrayList<>();
     private List<String> mTokenList=new ArrayList<>();
     private int mCounter=0;
-
+    private int mCounterConductoresDisponibles=0;
+    double precio;
+    String Duracion,Distancia;
     Runnable mrunnable =new Runnable() {
         @Override
         public void run() {
@@ -96,14 +102,8 @@ public class SoliciarConductorActivity extends AppCompatActivity {
                 mHandler.postDelayed(mrunnable,1000);
 
             }else {
-                if (IDConductorEncontrado !=null){
-                        if (!IDConductorEncontrado.equals("")){
-                            clienteReservaProvider.actualizarEstado(authProvider.getId(),"Cancelado");
-                            InicarSolicitud();
-                        }
-
-                }
-
+                BorrarConductoresEncontrados();
+                CancelarSolicitud();
                 mHandler.removeCallbacks(mrunnable);
             }
 
@@ -125,7 +125,7 @@ public class SoliciarConductorActivity extends AppCompatActivity {
         mExtraLon=getIntent().getDoubleExtra("origin_lon",0);
         mExtraDestinoLat=getIntent().getDoubleExtra("destino_lat",0);
         mExtraDestinoLon=getIntent().getDoubleExtra("destino_lon",0);
-
+        precio=getIntent().getDoubleExtra("precio",0);
         origenLatlgn=new LatLng(mExtraLat,mExtraLon);
         destinoLatlng=new LatLng(mExtraDestinoLat,mExtraDestinoLon);
 //        isntanciar
@@ -135,13 +135,17 @@ public class SoliciarConductorActivity extends AppCompatActivity {
 
         notificationProvider=new NotificationProvider();
         clienteReservaProvider=new ClienteReservaProvider();
+        conductoresEncontradosProvider=new ConductoresEncontradosProvider();
 
         conductorProvider=new ConductorProvider();
         clienteProvider=new ClienteProvider();
         authProvider=new AuthProvider();
+
+
         BtnCancelar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                BorrarConductoresEncontrados();
                 CancelarSolicitud();
             }
         });
@@ -149,6 +153,13 @@ public class SoliciarConductorActivity extends AppCompatActivity {
 
 
         ObtenerConductoresCerca();
+    }
+
+    private void BorrarConductoresEncontrados() {
+        for (String idConductor: mConductoresFounList){
+            conductoresEncontradosProvider.Borrar(idConductor);
+
+        }
     }
 
     private void CancelarSolicitud() {
@@ -171,21 +182,25 @@ public class SoliciarConductorActivity extends AppCompatActivity {
     }
     private void RevisarEstadoSolicitud() {
 
-        mlistener=clienteReservaProvider.getEstado(authProvider.getId()).addValueEventListener(new ValueEventListener() {
+        mlistener=clienteReservaProvider.getClienteSolicitud(authProvider.getId()).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()){
-                    String estado=snapshot.getValue().toString();
-                    if (estado.equals("Aceptado")){
+                    String estado=snapshot.child("estado").getValue().toString();
+                    String idConductor=snapshot.child("idConductor").getValue().toString();
+                    if (estado.equals("Aceptado") && !idConductor.equals("")){
+
+                        EnviarNotificacionCancelacionAConductores(idConductor);
+
                         Intent intent=new Intent(SoliciarConductorActivity.this,MapClienteReservaActivity.class);
                         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                         startActivity(intent);
                         finish();
                     }else if (estado.equals("Cancelado")){
 
-                        if (estabuscando){
-                            InicarSolicitud();
-                        }
+//                        if (estabuscando){
+//                            InicarSolicitud();
+//                        }
 
                         Toast.makeText(SoliciarConductorActivity.this, "El conductor no acepto el viaje", Toast.LENGTH_SHORT).show();
 //                        Intent intent=new Intent(SoliciarConductorActivity.this,MapClienteActivity.class);
@@ -222,6 +237,7 @@ public class SoliciarConductorActivity extends AppCompatActivity {
             @Override
             public void onKeyEntered(String key, GeoLocation location) {
                 Log.d("COnductor","ID "+key);
+                Buscandoa.setText("Buscando Conductor");
                 mConductoresFounList.add(key);
 
             }
@@ -239,64 +255,71 @@ public class SoliciarConductorActivity extends AppCompatActivity {
             @Override
             public void onGeoQueryReady() {
 //                finaliza la busqyeda en un radios de 10 kilometros
-                for (String id: mConductoresFounList){
-                    tokenProvider.getToken(id).addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot snapshot) {
-                            mCounter=mCounter+1;
-                            if (snapshot.exists()){
-                                String token=snapshot.child("token").getValue().toString();
-                                mTokenList.add(token);
-                            }
-                            if (mCounter==mConductoresFounList.size()){
-
-                                Map<String,String> map=new HashMap<>();
-                                map.put("title","VIAJE CANCELADO");
-                                map.put("body",
-                                        "El cliente cancelo la solicitud"
-                                );
-                                FCMBody fcmBody=new FCMBody(mTokenList,"high","450s",map);
-
-                                notificationProvider.sendNotificacion(fcmBody).enqueue(new Callback<FCMResponse>() {
-                                    @Override
-                                    public void onResponse(Call<FCMResponse> call, Response<FCMResponse> response) {
-                                        if (response.body()!=null){
-                                            if (response.body().getSuccess()==1){
-                                                Toast.makeText(SoliciarConductorActivity.this, "Las notificaciones se enviaron correctamente", Toast.LENGTH_SHORT).show();
-
-                                            }else {
-                                                Toast.makeText(SoliciarConductorActivity.this, "No se pudo enviar notificacion", Toast.LENGTH_SHORT).show();
-                                            }
-                                        }else {
-                                            Toast.makeText(SoliciarConductorActivity.this, "No se pudo enviar notificacion", Toast.LENGTH_SHORT).show();
-                                        }
-                                    }
-
-                                    @Override
-                                    public void onFailure(Call<FCMResponse> call, Throwable t) {
-                                        Log.d("ErrorKisamado","Error 2527: "+t.getMessage());
-
-                                    }
-                                });
-
-                            }
-                        }
-
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError error) {
-
-                        }
-                    });
-                }
-
+                ValidarConductorDisponible();
             }
 
             @Override
             public void onGeoQueryError(DatabaseError error) {
 
-
             }
         });
+    }
+    private void  ObtenerConducotresToken(){
+        if (mConductoresFounList.size()==0){
+            ObtenerConductoresCerca();
+            return;
+        }
+        Buscandoa.setText("Esperando Respuesta");
+        for (String id: mConductoresFounList){
+            tokenProvider.getToken(id).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    mCounter=mCounter+1;
+                    if (snapshot.exists()){
+                        String token=snapshot.child("token").getValue().toString();
+                        mTokenList.add(token);
+                    }
+                    if (mCounter==mConductoresFounList.size()){
+                            EnviarNotificacion("","");
+                    }
+                }
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+
+                }
+            });
+        }
+    }
+    private void  ValidarConductorDisponible(){
+        for (String idConductor: mConductoresFounList){
+            conductoresEncontradosProvider.ObtnerConductorEncontradoByID(idConductor).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    mCounterConductoresDisponibles=mCounterConductoresDisponibles+1;
+                    for (DataSnapshot d: snapshot.getChildren()){
+                        if (d.exists()){
+                            String idConductor=d.child("idConductor").getValue().toString();
+                            //elimino de la lista de conductores encontrados el conductor que ya existe en el node CONductoresEncontrados
+//                            para no enviarle la notificacion
+                            mConductoresFounList.remove(idConductor);
+                            mCounterConductoresDisponibles=mCounterConductoresDisponibles-1;
+
+                        }
+                    }
+                    //la consulta ya termino
+                    //nos aseguramos de no enviarle la notificaciones a los conductores que yta estan recibiendo la notificacion
+                    if (mCounterConductoresDisponibles==mConductoresFounList.size()){
+                        ObtenerConducotresToken();
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+
+                }
+            });
+        }
+
     }
 
     private void CrearSolicitudCliente(){
@@ -316,12 +339,10 @@ public class SoliciarConductorActivity extends AppCompatActivity {
                     JSONObject distancia=leg.getJSONObject("distance");
                     JSONObject duracion=leg.getJSONObject("duration");
 //                    obtener el string de la api
-                    String Distancia=distancia.getString("text");
-                    String Duracion=duracion.getString("text");
+                    Distancia=distancia.getString("text");
+                    Duracion=duracion.getString("text");
 
-                    EnviarNotificacion(Duracion,Distancia);
-
-
+                    EnviarNotificacion("","");
 
                 }catch (Exception e){
                     Log.d("Error","Jiren: "+e.getMessage());
@@ -341,59 +362,56 @@ public class SoliciarConductorActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if (dataSnapshot.exists()){
-                    List<String> tokens=new ArrayList<>();
-
-                    String token=dataSnapshot.child("token").getValue().toString();
                     Map<String,String> map=new HashMap<>();
-                    map.put("title","SOLICITUD DE SERVICIO A "+tiempo+" De TU POSICION");
+                    map.put("title","SOLICITUD DE SERVICIO ");
                     map.put("body",
-                            "Un Cliente esta solicitando un servicio a una distancia de "+distancia
+                            "Un Cliente esta solicitando un servicio "
                             +"\n"+"Recoger en: "+mExtraOrigen+"\n"+
-                                    "Destino: " +mExtraDestino
-
+                                    "Destino: " +mExtraDestino+"\n"+
+                                    "Precio: "+precio
                     );
                     map.put("idCliente",authProvider.getId());
                     map.put("origen",mExtraOrigen);
                     map.put("destino",mExtraDestino);
                     map.put("tiempo",tiempo);
                     map.put("distancia",distancia);
-
-                    FCMBody fcmBody=new FCMBody(tokens,"high","450s",map);
+                    map.put("searchById", "false");
+                    map.put("precio", String.valueOf(precio));
+                    FCMBody fcmBody=new FCMBody(mTokenList,"high","450s",map);
 
                     notificationProvider.sendNotificacion(fcmBody).enqueue(new Callback<FCMResponse>() {
                         @Override
                         public void onResponse(Call<FCMResponse> call, Response<FCMResponse> response) {
-                            if (response.body()!=null){
-                                if (response.body().getSuccess()==1){
-                                    ClientBooking clientBooking=new ClientBooking(
-                                            authProvider.getId(),
-                                            IDConductorEncontrado,
-                                            mExtraDestino,
-                                            mExtraOrigen,
-                                            tiempo,
-                                            distancia,
-                                            "Creado",
-                                            mExtraLat,
-                                            mExtraLon,
-                                            mExtraDestinoLat,
-                                            mExtraDestinoLon
+
+                            ClientBooking clientBooking=new ClientBooking(
+                                    authProvider.getId(),
+                                    "",
+                                    mExtraDestino,
+                                    mExtraOrigen,
+                                    tiempo,
+                                    precio,
+                                    distancia,
+                                    "Creado",
+                                    mExtraLat,
+                                    mExtraLon,
+                                    mExtraDestinoLat,
+                                    mExtraDestinoLon
 
 
+                            );
+//                            recorremos la lista de conductores encontrados para almacenarlos en fireba
+                            for (String idConductor: mConductoresFounList){
+                                ConductorEncontrado  conductorEncontrado=new ConductorEncontrado(idConductor,authProvider.getId());
+                                conductoresEncontradosProvider.Crear(conductorEncontrado);
 
-                                    );
-                                    clienteReservaProvider.Crear(clientBooking).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                        @Override
-                                        public void onSuccess(Void aVoid) {
-                                            RevisarEstadoSolicitud();
-                                        }
-                                    });
-                                }else {
-                                    Log.d("ErrorKisamado","Error 1024521: "+token);
-                                    Toast.makeText(SoliciarConductorActivity.this, "No se pudo enviar notificacion", Toast.LENGTH_SHORT).show();
-                                }
-                            }else {
-                                Toast.makeText(SoliciarConductorActivity.this, "No se pudo enviar notificacion", Toast.LENGTH_SHORT).show();
                             }
+                            clienteReservaProvider.Crear(clientBooking).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    mHandler.postDelayed(mrunnable,1000);
+                                    RevisarEstadoSolicitud();
+                                }
+                            });
                         }
 
                         @Override
@@ -415,66 +433,60 @@ public class SoliciarConductorActivity extends AppCompatActivity {
         });
 
     }
-    private void EnviarNotificacionCancelacion(){
-        if (IDConductorEncontrado!=null){
-            tokenProvider.getToken(IDConductorEncontrado).addListenerForSingleValueEvent(new ValueEventListener() {
+    private void EnviarNotificacionCancelacionAConductores(String idConductore){
+        if (mTokenList.size()>0){
+            Map<String,String> map=new HashMap<>();
+            map.put("title","VIAJE CANCELADO");
+            map.put("body",
+                    "El cliente cancelo la solicitud"
+            );
+            //elimianr de la lista de token el token que acepto el viaje
+            mTokenList.remove(idConductore);
+
+            FCMBody fcmBody=new FCMBody(mTokenList,"high","450s",map);
+            notificationProvider.sendNotificacion(fcmBody).enqueue(new Callback<FCMResponse>() {
                 @Override
-                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    if (dataSnapshot.exists()){
-                        if (dataSnapshot.hasChild("token")){
-                            List<String> tokens=new ArrayList<>();
-
-                            String token=dataSnapshot.child("token").getValue().toString();
-                            Map<String,String> map=new HashMap<>();
-                            map.put("title","VIAJE CANCELADO");
-                            map.put("body",
-                                    "El cliente cancelo la solicitud"
-                            );
-                            FCMBody fcmBody=new FCMBody(tokens,"high","450s",map);
-
-                            notificationProvider.sendNotificacion(fcmBody).enqueue(new Callback<FCMResponse>() {
-                                @Override
-                                public void onResponse(Call<FCMResponse> call, Response<FCMResponse> response) {
-                                    if (response.body()!=null){
-                                        if (response.body().getSuccess()==1){
-                                            Toast.makeText(SoliciarConductorActivity.this, "La solicitud se cancelo correctamente", Toast.LENGTH_SHORT).show();
-                                            Intent intent=new Intent(SoliciarConductorActivity.this,MapClienteActivity.class);
-                                            startActivity(intent);
-                                            finish();
-                                        }else {
-                                            Log.d("ErrorKisamado","Error 1024521: "+token);
-                                            Toast.makeText(SoliciarConductorActivity.this, "No se pudo enviar notificacion", Toast.LENGTH_SHORT).show();
-                                        }
-                                    }else {
-                                        Toast.makeText(SoliciarConductorActivity.this, "No se pudo enviar notificacion", Toast.LENGTH_SHORT).show();
-                                    }
-                                }
-
-                                @Override
-                                public void onFailure(Call<FCMResponse> call, Throwable t) {
-                                    Log.d("ErrorKisamado","Error 2527: "+t.getMessage());
-
-                                }
-                            });
-                        }else {
-                            Toast.makeText(SoliciarConductorActivity.this, "La solicitud se cancelo correctamente", Toast.LENGTH_SHORT).show();
-                            Intent intent=new Intent(SoliciarConductorActivity.this,MapClienteActivity.class);
-                            startActivity(intent);
-                            finish();
-                        }
-
-                    }else {
-                        Toast.makeText(SoliciarConductorActivity.this, "No se pudo enviar la notificacion por que el conductor se desconecto", Toast.LENGTH_SHORT).show();
-                    }
+                public void onResponse(Call<FCMResponse> call, Response<FCMResponse> response) {
 
                 }
 
                 @Override
-                public void onCancelled(@NonNull DatabaseError error) {
+                public void onFailure(Call<FCMResponse> call, Throwable t) {
+                    Log.d("ErrorKisamado","Error 2527: "+t.getMessage());
 
                 }
             });
-        }else {
+        }
+
+
+    }
+
+    private void EnviarNotificacionCancelacion(){
+        if (mTokenList.size()>0){
+            Map<String,String> map=new HashMap<>();
+            map.put("title","VIAJE CANCELADO");
+            map.put("body",
+                    "El cliente cancelo la solicitud"
+            );
+            FCMBody fcmBody=new FCMBody(mTokenList,"high","450s",map);
+            notificationProvider.sendNotificacion(fcmBody).enqueue(new Callback<FCMResponse>() {
+                @Override
+                public void onResponse(Call<FCMResponse> call, Response<FCMResponse> response) {
+                    Toast.makeText(SoliciarConductorActivity.this, "La solicitud se cancelo correctamente", Toast.LENGTH_SHORT).show();
+                    Intent intent=new Intent(SoliciarConductorActivity.this,MapClienteActivity.class);
+                    startActivity(intent);
+                    finish();
+                }
+
+                @Override
+                public void onFailure(Call<FCMResponse> call, Throwable t) {
+                    Log.d("ErrorKisamado","Error 2527: "+t.getMessage());
+
+                }
+            });
+        }
+
+        else {
             Toast.makeText(SoliciarConductorActivity.this, "La solicitud se cancelo correctamente", Toast.LENGTH_SHORT).show();
             Intent intent=new Intent(SoliciarConductorActivity.this,MapClienteActivity.class);
             startActivity(intent);

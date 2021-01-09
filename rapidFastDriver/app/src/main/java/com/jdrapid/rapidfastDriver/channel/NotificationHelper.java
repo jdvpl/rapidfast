@@ -48,14 +48,14 @@ public class NotificationHelper extends ContextWrapper {
     @RequiresApi(api = Build.VERSION_CODES.O)
     public Notification.Builder getNotification(String title, String body, PendingIntent intent, Uri sonidoUri){
         return new Notification.Builder(getApplicationContext(),CHANEL_ID).setContentTitle(title).
-                setContentText(body).setAutoCancel(true).setSound(sonidoUri).setContentIntent(intent).setSmallIcon(R.drawable.ic_carrro_notificacion).
+                setContentText(body).setAutoCancel(true).setSound(sonidoUri).setContentIntent(intent).setSmallIcon(R.drawable.logo).
                 setStyle(new Notification.BigTextStyle().bigText(body).setBigContentTitle(title));
 
     }
     @RequiresApi(api = Build.VERSION_CODES.O)
     public Notification.Builder getNotificationAcciones(String title, String body, Uri sonidoUri,Notification.Action aceptar,Notification.Action cancelarAccion){
         return new Notification.Builder(getApplicationContext(),CHANEL_ID).setContentTitle(title).
-                setContentText(body).setAutoCancel(true).setSound(sonidoUri).setSmallIcon(R.drawable.ic_carrro_notificacion).
+                setContentText(body).setAutoCancel(true).setSound(sonidoUri).setSmallIcon(R.drawable.logo).
                 addAction(aceptar).
                 addAction(cancelarAccion).
                 setStyle(new Notification.BigTextStyle().bigText(body).setBigContentTitle(title));
@@ -65,14 +65,14 @@ public class NotificationHelper extends ContextWrapper {
 
     public NotificationCompat.Builder getNotificationVersionVieja(String Titulo, String Contenido, PendingIntent intent, Uri sonidoUri){
     return new NotificationCompat.Builder(getApplicationContext(),CHANEL_ID).setContentTitle(Titulo).
-            setContentText(Contenido).setAutoCancel(true).setSound(sonidoUri).setContentIntent(intent).setSmallIcon(R.drawable.ic_carrro_notificacion)
+            setContentText(Contenido).setAutoCancel(true).setSound(sonidoUri).setContentIntent(intent).setSmallIcon(R.drawable.logo)
             .setStyle(new NotificationCompat.BigTextStyle().bigText(Contenido).setBigContentTitle(Titulo));
 
 }
 
     public NotificationCompat.Builder getNotificationVersionViejaScciones(String Titulo, String Contenido,  Uri sonidoUri,NotificationCompat.Action aceptar,NotificationCompat.Action cancelarAScion){
         return new NotificationCompat.Builder(getApplicationContext(),CHANEL_ID).setContentTitle(Titulo).
-                setContentText(Contenido).setAutoCancel(true).setSound(sonidoUri).setSmallIcon(R.drawable.ic_carrro_notificacion)
+                setContentText(Contenido).setAutoCancel(true).setSound(sonidoUri).setSmallIcon(R.drawable.logo)
                 .addAction(aceptar).addAction(cancelarAScion)
                 .setStyle(new NotificationCompat.BigTextStyle().bigText(Contenido).setBigContentTitle(Titulo));
 

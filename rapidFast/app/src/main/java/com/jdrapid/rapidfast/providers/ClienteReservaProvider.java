@@ -13,8 +13,6 @@ public class ClienteReservaProvider {
     private final DatabaseReference databaseReference;
     public ClienteReservaProvider() {
         databaseReference= FirebaseDatabase.getInstance().getReference().child("SolicitudesCliente");
-
-
     }
     public Task<Void> Crear(ClientBooking clientBooking){
         return databaseReference.child(clientBooking.getIdCliente()).setValue(clientBooking);

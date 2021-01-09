@@ -69,7 +69,7 @@ public class AfiliadosActivity extends AppCompatActivity {
         hoy=new Date();
         DateFormat dateFormat=new SimpleDateFormat("dd/MM/yyyy");
 
-        if (!nombre.isEmpty() && !Cedula.isEmpty() && celular.isEmpty()){
+        if (!nombre.isEmpty() && !Cedula.isEmpty() && !celular.isEmpty()){
             alertDialog.show();
             Afiliados afiliado=new Afiliados();
             afiliado.setIdAfiliado(idAfiliado);

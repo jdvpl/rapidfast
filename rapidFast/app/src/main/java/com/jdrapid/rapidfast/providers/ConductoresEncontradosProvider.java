@@ -21,4 +21,7 @@ public class ConductoresEncontradosProvider {
     public Query ObtnerConductorEncontradoByID(String iDConductor){
         return  databaseReference.orderByChild("idConductor").equalTo(iDConductor);
     }
+    public Task<Void> Borrar(String IdCondutor){
+        return databaseReference.child(IdCondutor).removeValue();
+    }
 }
