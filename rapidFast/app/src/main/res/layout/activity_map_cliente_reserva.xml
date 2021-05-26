@@ -124,7 +124,6 @@
                 </LinearLayout>
 
 
-
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -189,10 +188,7 @@
                             android:maxLines="1"
                             android:textSize="13sp"
                             android:text="$ 8000"/>
-
                     </LinearLayout>
-
-
 
                     <LinearLayout
                         android:layout_width="match_parent"

@@ -1,0 +1,59 @@
+se usa SSR- Server Side Rendering
+
+Poyecto para crear una cuenta en firebase e iniciar sesion filtra, publica imagenes url y url de portafolio
+https://www.udemy.com/course/react-de-principiante-a-experto-creando-mas-de-10-aplicaciones/learn/lecture/17679746#overview
+
+SSR- Aplicaciones universales 
+El servidor es quien genera el html
+
+CSR - CLient Side Rendering
+Es el navegador quien general el html
+
+
+Beneficion SSR
+*Carga mas rapido
+*para apps mas grandes si va en crecimiento
+*mejora el SEO, el top de buscado en Google
+
+Opciones para SSR 
+Gastby y NEXT
+
+----------NEXT.js------------------
+Framework para crear  aplicaciones con SSR
+
+Caracteristicas
+
+*Utiliza SSR
+*Code Splitting y Lazy Loading a los componentes
+*Cuenta con Routing
+*Soporta CSS, Emotion
+*Hot Reloadign
+*Url Limpias
+
+
+
+--------------Serverless-------------------
+es una opcion donde alguien mas ofrece la contratacion de renta un espacio
+Es un servicio sin la necesidad de tener un servidor fisico
+Ejemplo
+Firebase
+Google Cloud
+AWS
+Netlify
+Github Pages
+Firebase Hosting
+Google Forms
+
+
+-------------Firebase, FireSotre----------------
+
+NoSql
+RealTime Database- Solucion Original de Firebase, en tiempo Real
+Cloud FIreStore. Modelo Json- Mas Seguro-Mucho Mejor
+
+
+
+
+
+
+

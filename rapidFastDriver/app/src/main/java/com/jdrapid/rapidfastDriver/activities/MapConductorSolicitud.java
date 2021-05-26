@@ -108,7 +108,7 @@ public class MapConductorSolicitud extends AppCompatActivity implements OnMapRea
 
     //    textview
     private TextView txtNombreCliente, txtEmailCliente;
-    private TextView txtOrigenCliente, txtDestinoCliente, txtTiempo,TxtKm;
+    private TextView txtOrigenCliente, txtDestinoCliente, txtTiempo,TxtKm,TxtPrecio;
     private ImageView FotoClientesolicitud;
     private String mExtraClienteId;
     Button BtnCancelar;
@@ -149,7 +149,7 @@ public class MapConductorSolicitud extends AppCompatActivity implements OnMapRea
     private InfoCelularProvider infoCelularProvider;
     private ConductoresEncontradosProvider conductoresEncontradosProvider;
 
-
+    String precioFinal;
     Runnable runnable = new Runnable() {
         @Override
         public void run() {
@@ -165,8 +165,6 @@ public class MapConductorSolicitud extends AppCompatActivity implements OnMapRea
                 minutos++;
             }
             mhandler.postDelayed(runnable, 1000);
-
-
         }
     };
 
@@ -212,6 +210,7 @@ public class MapConductorSolicitud extends AppCompatActivity implements OnMapRea
         public void onProviderDisabled(String provider) {}
         @Override
         public void onStatusChanged(String provider, int status, Bundle extras) {
+            Log.d("Error mk", "onStatusChanged: "+provider+status+extras);
         }
     };
     LocationCallback locationCallback = new LocationCallback() {
@@ -222,7 +221,6 @@ public class MapConductorSolicitud extends AppCompatActivity implements OnMapRea
                     latLngUbicacionActual = new LatLng(location.getLatitude(), location.getLongitude());
                     if (!mIsStartLocation) {
                         nMap.clear();
-
                         marker = nMap.addMarker(new MarkerOptions().position(new LatLng(
                                         location.getLatitude(), location.getLongitude())
                                 ).title("Mi Ubicacion").icon(BitmapDescriptorFactory.fromResource(R.drawable.carrorappid))
@@ -232,7 +230,6 @@ public class MapConductorSolicitud extends AppCompatActivity implements OnMapRea
                                 new CameraPosition.Builder()
                                         .target(new LatLng(location.getLatitude(), location.getLongitude()))
                                         .zoom(16f).build()
-
                         ));
                         ActualizarUbicacion();
 
@@ -248,10 +245,6 @@ public class MapConductorSolicitud extends AppCompatActivity implements OnMapRea
                         mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2000, 10, locationListenerGps);
                         stopLocation();
                     }
-
-
-
-
                 }
             }
         }
@@ -285,6 +278,7 @@ public class MapConductorSolicitud extends AppCompatActivity implements OnMapRea
         BtnCancelar=findViewById(R.id.btnCancelar);
         BtnCancelarTodo=findViewById(R.id.btnCancelartodo);
         mExtrasearchById=getIntent().getStringExtra("searchById");
+        TxtPrecio=findViewById(R.id.txtconductorprecio);
 
         BtnTelefonoCliente = findViewById(R.id.btnLlamarCliente);
         BtnLlamarSoporte = findViewById(R.id.btnLamarSoporte);
@@ -304,6 +298,7 @@ public class MapConductorSolicitud extends AppCompatActivity implements OnMapRea
 
 
         mExtraClienteId = getIntent().getStringExtra("idCliente");
+        validarsiClienteCanceloViaje();
 //        dibujar mapa
         googleApiProvider = new GoogleApiProvider(MapConductorSolicitud.this);
         notificationProvider = new NotificationProvider();
@@ -391,26 +386,93 @@ public class MapConductorSolicitud extends AppCompatActivity implements OnMapRea
                 finalizarBooking();
             }
         });
-
         BtnCancelarTodo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent=new Intent(MapConductorSolicitud.this,MapConductorActivity.class);
-                startActivity(intent);
-                finish();
+
+                CancelarBooking();
                 mEditor.clear().commit();
-//                CancelarViaje();
-                Toast.makeText(MapConductorSolicitud.this, "Viaje cancelado", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MapConductorSolicitud.this, "Cancelado Correctamente", Toast.LENGTH_SHORT).show();
+                Intent intent10=new Intent(MapConductorSolicitud.this,MapConductorActivity.class);
+                startActivity(intent10);
+                finish();
             }
         });
     }
 
-    private void CancelarViaje() {
-        conductoresEncontradosProvider.Borrar(authProvider.getId());
-        NotificationManager notificationManager=(NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.cancel(2);
+    private void CancelarBooking() {
+        clienteReservaProvider.actualizarHistoryBooking(mExtraClienteId).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                clienteReservaProvider.actualizarEstado(mExtraClienteId, "Cancelado");
+                //con esto limpiamos todos los datos de sharepreference
+                mEditor.clear().commit();
+                EnviarNotificacion("El conductor cancelo el viaje");
+                conductoresEncontradosProvider.Borrar(authProvider.getId());
+                clienteReservaProvider.borrar(mExtraClienteId);
+                removerUbicacion();
+                stopLocation();
+                if (mhandler != null) {
+                    mhandler.removeCallbacks(runnable);
+                }
+            }
+        });
 
     }
+
+    private void validarsiClienteCanceloViaje() {
+        clienteReservaProvider.getClienteSolicitud(mExtraClienteId).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (!snapshot.exists()){
+                    mEditor.clear().commit();
+                    iraMapClienteActividad();
+                }
+//                significa que el la solicitud existe
+                else if (snapshot.hasChild("idConductor") && snapshot.hasChild("estado")){
+
+                    String estado=snapshot.child("estado").getValue().toString();
+                    if (estado.equals("Cancelado")){
+                        iraMapClienteActividad();
+                        mEditor.clear().commit();
+                    }
+                }
+            }
+
+            private void iraMapClienteActividad() {
+                Intent lol=new Intent(MapConductorSolicitud.this,MapConductorActivity.class);
+                startActivity(lol);
+                finish();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
+    private void finalizarBooking() {
+        clienteReservaProvider.actualizarHistoryBooking(mExtraClienteId).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                isViajeFinalizado=true;
+                //con esto limpiamos todos los datos de sharepreference
+                mEditor.clear().commit();
+                EnviarNotificacion("Viaje Finalizado");
+                removerUbicacion();
+                stopLocation();
+                if (mhandler != null) {
+                    mhandler.removeCallbacks(runnable);
+                }
+                geofireProvider.EliminarUbicacion(authProvider.getId());
+                obtenerPrecioVijae();
+            }
+        });
+
+
+    }
+
 
 
     private void stopLocation(){
@@ -498,7 +560,7 @@ public class MapConductorSolicitud extends AppCompatActivity implements OnMapRea
                 clienteReservaProvider.actualizarEstado(mExtraClienteId, "Finalizar");
                 Intent intent = new Intent(MapConductorSolicitud.this, CalificacionClienteActivity.class);
                 intent.putExtra("idCliente", mExtraClienteId);
-                intent.putExtra("precio", total);
+                intent.putExtra("precio", precioFinal);
                 startActivity(intent);
                 finish();
             }
@@ -513,27 +575,7 @@ public class MapConductorSolicitud extends AppCompatActivity implements OnMapRea
 
     }
 
-    private void finalizarBooking() {
-        clienteReservaProvider.actualizarHistoryBooking(mExtraClienteId).addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
-                isViajeFinalizado=true;
-                //con esto limpiamos todos los datos de sharepreference
-                mEditor.clear().commit();
-                EnviarNotificacion("Viaje Finalizado");
-                removerUbicacion();
-                stopLocation();
-                if (mhandler != null) {
-                    mhandler.removeCallbacks(runnable);
 
-                }
-                geofireProvider.EliminarUbicacion(authProvider.getId());
-                obtenerPrecioVijae();
-            }
-        });
-
-
-    }
 
     private void inicarBooking() {
         mEditor.putString("status","Iniciar");
@@ -543,6 +585,8 @@ public class MapConductorSolicitud extends AppCompatActivity implements OnMapRea
         clienteReservaProvider.actualizarEstado(mExtraClienteId, "Iniciar");
         btnInicarViaje.setVisibility(View.GONE);
         BtnFinalizarViaje.setVisibility(View.VISIBLE);
+        BtnCancelarTodo.setVisibility(View.GONE);
+        BtnTelefonoCliente.setVisibility(View.GONE);
         nMap.clear();
 
         nMap.addMarker(new MarkerOptions().position(mDestinoLatlng).title("Destino").icon(BitmapDescriptorFactory.fromResource(R.drawable.pin)));
@@ -595,6 +639,8 @@ public class MapConductorSolicitud extends AppCompatActivity implements OnMapRea
                 if (snapshot.exists()) {
                     String destino = snapshot.child("destino").getValue().toString();
                     String origen = snapshot.child("origen").getValue().toString();
+                    String precio = snapshot.child("precio").getValue().toString();
+
                     double destinoLat = Double.parseDouble(snapshot.child("destinoLat").getValue().toString());
                     double destinoLon = Double.parseDouble(snapshot.child("destinoLong").getValue().toString());
                     double origenLat = Double.parseDouble(snapshot.child("origenLat").getValue().toString());
@@ -604,6 +650,8 @@ public class MapConductorSolicitud extends AppCompatActivity implements OnMapRea
                     mDestinoLatlng = new LatLng(destinoLat, destinoLon);
                     txtOrigenCliente.setText("Recoger en: " + origen);
                     txtDestinoCliente.setText("Destino: " + destino);
+                    precioFinal=precio;
+                    TxtPrecio.setText(precio);
 
                     mPref=getApplicationContext().getSharedPreferences("RideStatus",MODE_PRIVATE);
                     mEditor=mPref.edit();
@@ -752,7 +800,6 @@ public class MapConductorSolicitud extends AppCompatActivity implements OnMapRea
                         ShowAlertGPS();
                     }
 
-
                 } else {
                     checkLocationPermmisions();
                 }
@@ -872,7 +919,7 @@ public class MapConductorSolicitud extends AppCompatActivity implements OnMapRea
                     Map<String,String> map=new HashMap<>();
                     map.put("title","ESTADO DE TU VIAJE");
                     map.put("body",
-                            "Tu estado del viaje es: "+estado);
+                            ""+estado);
                     FCMBody fcmBody=new FCMBody(token,"high","4500s",map);
 
                     notificationProvider.sendNotificacion(fcmBody).enqueue(new Callback<FCMResponse>() {

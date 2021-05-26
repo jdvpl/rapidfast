@@ -9,6 +9,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -36,6 +37,7 @@ public class LoginActivity extends AppCompatActivity {
 //    viarable del activyti
     TextInputEditText InEmail,InContrasena;
     Button BtnLogin;
+    TextView BtnRegistroActivity;
 
 //    Alert
     AlertDialog alertDialog;
@@ -46,6 +48,15 @@ public class LoginActivity extends AppCompatActivity {
         InEmail=findViewById(R.id.txtInputCorrero);
         InContrasena=findViewById(R.id.txtInputContrasena);
         BtnLogin=findViewById(R.id.BtnLogin);
+
+        BtnRegistroActivity=findViewById(R.id.BtnRegistroactivity);
+        BtnRegistroActivity.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent perrito=new Intent(LoginActivity.this,RegistroCorrero.class);
+                startActivity(perrito);
+            }
+        });
 //        toolbar
         ToolBar.mostrar(this,getString(R.string.ToolBarLogin),true);
 //        hacer instancia

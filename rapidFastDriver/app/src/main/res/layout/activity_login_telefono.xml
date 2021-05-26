@@ -19,8 +19,7 @@
             app:shape_arc_cropDirection="outside"
             app:shape_arc_height="20dp"
             android:layout_marginBottom="50dp"
-            app:shape_arc_position="bottom"
-            >
+            app:shape_arc_position="bottom">
 
             <View
                 android:layout_width="match_parent"
@@ -68,7 +67,16 @@
                     android:layout_gravity="center"
                     android:textAlignment="center"/>
 
-
+                <Button
+                    android:id="@+id/BtncondigoVerificacion"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Ingresar"
+                    android:background="@drawable/boton_redondeado"
+                    android:backgroundTint="@color/black"
+                    android:textColor="@color/white"
+                    android:layout_gravity="bottom"
+                    android:layout_margin="30dp"/>
             </LinearLayout>
         </ScrollView>
 
@@ -80,14 +88,5 @@
         android:layout_marginTop="140dp"
         android:layout_gravity="center|top"
         android:src="@drawable/imagen1"/>
-    <Button
-        android:id="@+id/BtncondigoVerificacion"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Ingresar"
-        android:background="@drawable/boton_redondeado"
-        android:backgroundTint="@color/black"
-        android:textColor="@color/white"
-        android:layout_gravity="bottom"
-        android:layout_margin="30dp"/>
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

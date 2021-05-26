@@ -2,6 +2,7 @@ package com.jdrapid.rapidfastDriver.activities;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -22,6 +23,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
 import android.provider.Settings;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -72,7 +74,6 @@ public class MapConductorActivity extends AppCompatActivity implements OnMapRead
     private ConductoresEncontradosProvider conductoresEncontradosProvider;
     //    token
     private TokenProvider tokenProvider;
-
     //    ubicacion
     private LocationRequest locationRequest;
     private FusedLocationProviderClient fusedLocation;
@@ -97,12 +98,15 @@ public class MapConductorActivity extends AppCompatActivity implements OnMapRead
     private boolean mIsStartLocation = false;
     LatLng mStartLatlng, mEndLatlng;
     LocationManager mLocationManager;
+    SharedPreferences.Editor mEditor;
+    private Location location;
 
     LocationListener locationListenerGps = new LocationListener() {
-        private Location location;
 
+        @RequiresApi(api = Build.VERSION_CODES.O)
         @Override
         public void onLocationChanged(@NonNull Location location) {
+
             latLngUbicacionActual = new LatLng(location.getLatitude(), location.getLongitude());
             if (mStartLatlng != null) {
                 mEndLatlng = mStartLatlng;
@@ -120,12 +124,12 @@ public class MapConductorActivity extends AppCompatActivity implements OnMapRead
             ActualizarUbicacion();
         }
         @Override
-        public void onProviderEnabled(String provider) {}
-        @Override
-        public void onProviderDisabled(String provider) {}
-        @Override
-        public void onStatusChanged(String provider, int status, Bundle extras) {
+        public void onStatusChanged(String s, int i, Bundle bundle) {
         }
+        @Override
+        public void onProviderEnabled(String s) {}
+        @Override
+        public void onProviderDisabled(String s) {}
     };
 
     LocationCallback locationCallback = new LocationCallback() {
@@ -143,7 +147,7 @@ public class MapConductorActivity extends AppCompatActivity implements OnMapRead
                         nMap.moveCamera(CameraUpdateFactory.newCameraPosition(
                                 new CameraPosition.Builder()
                                         .target(new LatLng(location.getLatitude(), location.getLongitude()))
-                                        .zoom(16f).build()
+                                        .zoom(18f).build()
 
                         ));
 
@@ -153,23 +157,20 @@ public class MapConductorActivity extends AppCompatActivity implements OnMapRead
                         );
 
                         ActualizarUbicacion();
+                        stopLocation();
+
                         if (ActivityCompat.checkSelfPermission(MapConductorActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(MapConductorActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
                             return;
                         }
                         mLocationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 2000,
                                 10, locationListenerGps);
-                        stopLocation();
 
                     }
-
-
                 }
             }
         }
     };
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -193,6 +194,9 @@ public class MapConductorActivity extends AppCompatActivity implements OnMapRead
         if (googleApiClient != null) {
             googleApiClient.connect();
         }
+        BorrarConductorTrabajando();
+        BorrarConductorEncontrado();
+        GenerarToken();
 
         BtnConectarse.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -201,6 +205,7 @@ public class MapConductorActivity extends AppCompatActivity implements OnMapRead
                     desconectado();
                 } else {
                     startLocation();
+
                 }
             }
         });
@@ -215,9 +220,8 @@ public class MapConductorActivity extends AppCompatActivity implements OnMapRead
             GenerarToken();
             BorrarConductorTrabajando();
             BorrarConductorEncontrado();
-        } GenerarToken();
-        BorrarConductorTrabajando();
-        BorrarConductorEncontrado();
+        }
+
 
 
 
@@ -238,7 +242,7 @@ public class MapConductorActivity extends AppCompatActivity implements OnMapRead
             public void onResult(@NonNull LocationSettingsResult locationSettingsResult) {
                 Status status = locationSettingsResult.getStatus();
                 if (status.getStatusCode() == LocationSettingsStatusCodes.SUCCESS) {
-                    Toast.makeText(MapConductorActivity.this, "El Gps ya esta avidado", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MapConductorActivity.this, "El Gps ya esta activado", Toast.LENGTH_SHORT).show();
                 } else if (status.getStatusCode() == LocationSettingsStatusCodes.RESOLUTION_REQUIRED) {
                     try {
                         status.startResolutionForResult(MapConductorActivity.this, REQUEST_CHECK_SETTINGS);
@@ -333,10 +337,7 @@ public class MapConductorActivity extends AppCompatActivity implements OnMapRead
         if (authProvider.existeSesion() && latLngUbicacionActual != null) {
             geofireProvider.guardarUbicacion(authProvider.getId(), latLngUbicacionActual);
         }
-
     }
-
-
     @Override
     public void onMapReady(GoogleMap googleMap) {
         nMap = googleMap;
@@ -349,8 +350,6 @@ public class MapConductorActivity extends AppCompatActivity implements OnMapRead
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         locationRequest.setSmallestDisplacement(5);
         ValidarConductorActivo();
-
-
     }
 
     @Override
@@ -361,14 +360,10 @@ public class MapConductorActivity extends AppCompatActivity implements OnMapRead
                 if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                     if (gpsActivado()) {
                         fusedLocation.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper());
-
                     } else {
                         //ShowAlertGPS();
                         requestGPSSettings();
-
                     }
-
-
                 } else {
                     checkLocationPermmisions();
                 }
@@ -426,11 +421,11 @@ public class MapConductorActivity extends AppCompatActivity implements OnMapRead
         geofireProvider.EliminarUbicacion(authProvider.getId());
 
     }
-
     private void startLocation() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 if (gpsActivado()) {
+                    BorrarConductorTrabajando();
                     BtnConectarse.setText("Desconectarse");
                     estaConectado = true;
                     fusedLocation.requestLocationUpdates(locationRequest, locationCallback, Looper.myLooper());

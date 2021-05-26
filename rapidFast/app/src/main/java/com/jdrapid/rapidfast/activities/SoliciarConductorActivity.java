@@ -93,7 +93,7 @@ public class SoliciarConductorActivity extends AppCompatActivity {
     private int mCounter=0;
     private int mCounterConductoresDisponibles=0;
     double precio;
-    String Duracion,Distancia;
+    String Duracion,Distancia,Tiempo,DistanciaKm;
     Runnable mrunnable =new Runnable() {
         @Override
         public void run() {
@@ -126,6 +126,10 @@ public class SoliciarConductorActivity extends AppCompatActivity {
         mExtraDestinoLat=getIntent().getDoubleExtra("destino_lat",0);
         mExtraDestinoLon=getIntent().getDoubleExtra("destino_lon",0);
         precio=getIntent().getDoubleExtra("precio",0);
+
+        DistanciaKm=getIntent().getStringExtra("distanciakm");
+        Tiempo=getIntent().getStringExtra("tiempo");
+
         origenLatlgn=new LatLng(mExtraLat,mExtraLon);
         destinoLatlng=new LatLng(mExtraDestinoLat,mExtraDestinoLon);
 //        isntanciar
@@ -342,7 +346,7 @@ public class SoliciarConductorActivity extends AppCompatActivity {
                     Distancia=distancia.getString("text");
                     Duracion=duracion.getString("text");
 
-                    EnviarNotificacion("","");
+                    EnviarNotificacion(Duracion,Distancia);
 
                 }catch (Exception e){
                     Log.d("Error","Jiren: "+e.getMessage());
@@ -368,6 +372,7 @@ public class SoliciarConductorActivity extends AppCompatActivity {
                             "Un Cliente esta solicitando un servicio "
                             +"\n"+"Recoger en: "+mExtraOrigen+"\n"+
                                     "Destino: " +mExtraDestino+"\n"+
+                                    "Distancia"+distancia+
                                     "Precio: "+precio
                     );
                     map.put("idCliente",authProvider.getId());
@@ -388,9 +393,9 @@ public class SoliciarConductorActivity extends AppCompatActivity {
                                     "",
                                     mExtraDestino,
                                     mExtraOrigen,
-                                    tiempo,
+                                    Tiempo,
                                     precio,
-                                    distancia,
+                                    DistanciaKm,
                                     "Creado",
                                     mExtraLat,
                                     mExtraLon,
@@ -443,7 +448,7 @@ public class SoliciarConductorActivity extends AppCompatActivity {
             //elimianr de la lista de token el token que acepto el viaje
             mTokenList.remove(idConductore);
 
-            FCMBody fcmBody=new FCMBody(mTokenList,"high","450s",map);
+            FCMBody fcmBody=new FCMBody(mTokenList,"high","50s",map);
             notificationProvider.sendNotificacion(fcmBody).enqueue(new Callback<FCMResponse>() {
                 @Override
                 public void onResponse(Call<FCMResponse> call, Response<FCMResponse> response) {

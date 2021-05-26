@@ -7,89 +7,112 @@
     android:fitsSystemWindows="true"
     tools:context=".activities.CalificacionClienteActivity">
 
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
         <com.github.florent37.shapeofview.shapes.ArcView
             android:layout_width="match_parent"
-            android:layout_height="230dp"
+            android:layout_height="170dp"
             android:elevation="4dp"
             app:shape_arc_cropDirection="outside"
             app:shape_arc_height="20dp"
             app:shape_arc_position="bottom"
             >
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@color/colorPrimary"/>
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Viaje Finalizado"
-                android:textAlignment="center"
-                android:textColor="@color/white"
-                android:textStyle="bold"
-                android:layout_marginTop="20dp"
-                android:textSize="22sp"/>
-            <com.airbnb.lottie.LottieAnimationView
-                android:id="@+id/lottie"
-                android:layout_width="150dp"
-                android:layout_height="150dp"
-                app:lottie_fileName="782-check-mark-success.json"
-                app:lottie_autoPlay="true"
-                app:lottie_loop="false"
-                android:layout_gravity="center"
-                android:layout_marginTop="30dp"/>
-
-
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/colorPrimary"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Viaje Finalizado"
+            android:textAlignment="center"
+            android:textColor="@color/white"
+            android:textStyle="bold"
+            android:layout_marginTop="20dp"
+            android:textSize="22sp"/>
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/lottie"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            app:lottie_fileName="782-check-mark-success.json"
+            app:lottie_autoPlay="true"
+            app:lottie_loop="false"
+            android:layout_gravity="center"
+            android:layout_marginTop="30dp"/>
         </com.github.florent37.shapeofview.shapes.ArcView>
 
-        <ScrollView
+
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="Desde"
+                android:textColor="@color/black"
+                android:textStyle="bold"
+                android:textAlignment="center"
+                android:layout_marginTop="15dp"
+                android:textSize="22sp"/>
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:text="Hasta"
+                android:textAlignment="center"
+                android:textColor="@color/black"
+                android:textStyle="bold"
+                android:layout_marginTop="15dp"
+                android:textSize="22sp"/>
+
+        </LinearLayout>
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:orientation="horizontal">
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Desde"
-            android:textAlignment="center"
-            android:textColor="@color/black"
-            android:textStyle="bold"
-            android:layout_marginTop="20dp"
-            android:textSize="22sp"/>
-        <TextView
-            android:id="@+id/OrigenCalificacionConductor"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Cr 69#64a-19"
-            android:textAlignment="center"
-            android:textStyle="bold"
-            android:layout_marginTop="8dp"
-            android:textSize="17sp"/>
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Hasta"
-            android:textAlignment="center"
-            android:textColor="@color/black"
-            android:textStyle="bold"
-            android:layout_marginTop="20dp"
-            android:textSize="22sp"/>
-        <TextView
-            android:id="@+id/DestinoCalificacionConductor"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Cr 69#64a-19"
-            android:textAlignment="center"
-            android:textStyle="bold"
-            android:layout_marginTop="8dp"
-            android:textSize="17sp"/>
+                <TextView
+                    android:id="@+id/OrigenCalificacionConductor"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:text=""
+                    android:textAlignment="center"
+                    android:textStyle="bold"
+                    android:lines="2"
+                    android:layout_marginTop="7dp"
+                    android:textSize="17sp"/>
+
+
+                <TextView
+                    android:id="@+id/DestinoCalificacionConductor"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:lines="2"
+                    android:layout_height="wrap_content"
+                    android:text=""
+                    android:textAlignment="center"
+                    android:textStyle="bold"
+                    android:layout_marginTop="7dp"
+                    android:textSize="17sp"/>
+            </LinearLayout>
+
+
+
 
         <TextView
             android:layout_width="match_parent"
@@ -104,7 +127,7 @@
             android:id="@+id/CalificacionPrecio"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="$ 12500"
+            android:text="$ 0"
             android:textAlignment="center"
             android:textStyle="bold"
             android:layout_marginTop="8dp"
@@ -115,6 +138,27 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginTop="30dp"/>
+
+
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Comentarios"
+            android:textAlignment="center"
+            android:textColor="@color/black"
+            android:textStyle="bold"
+            android:layout_marginTop="15dp"
+            android:textSize="22sp"/>
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/TxtMensajeCliente"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Esciba su comentario aqui"
+            android:inputType="textMultiLine"
+            android:autofillHints="Excelente"
+            android:layout_marginHorizontal="28dp"/>
 
 
                 <Button
@@ -130,9 +174,6 @@
 
             </LinearLayout>
         </ScrollView>
-
-    </LinearLayout>
-
 
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

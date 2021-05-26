@@ -60,6 +60,9 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
 
+    implementation 'com.payu.india:payu-checkout-pro:1.2.0'
+    implementation "com.android.billingclient:billing-ktx:3.0.0"
+
 
 
 }

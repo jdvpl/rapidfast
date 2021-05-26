@@ -20,9 +20,10 @@ public class HistoryBookingProvider {
         return databaseReference.child(historyBooking.getIdHistorialSolicitud()).setValue(historyBooking);
     }
 
-    public Task<Void> ActualizarCalificacionCliente(String idHistory,float CalificacionCleinte){
+    public Task<Void> ActualizarCalificacionCliente(String idHistory,float CalificacionCleinte,String MensajeCliente){
         Map<String,Object> map=new HashMap<>();
         map.put("calificacionCliente",CalificacionCleinte);
+        map.put("mensajeCliente",MensajeCliente);
         return databaseReference.child(idHistory).updateChildren(map);
     }
     public DatabaseReference getHistorialReserva(String idHistory){
@@ -31,6 +32,7 @@ public class HistoryBookingProvider {
     public Task<Void> ActualizarCalificacionConducotor(String idHistory,float CalificacionConductor){
         Map<String,Object> map=new HashMap<>();
         map.put("calificacionConductor",CalificacionConductor);
+
         return databaseReference.child(idHistory).updateChildren(map);
     }
 

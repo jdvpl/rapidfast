@@ -1,15 +1,18 @@
 package com.jdrapid.rapidfast.activities;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -36,6 +39,10 @@ import com.jdrapid.rapidfast.utils.DecodePoints;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Calendar;
 import java.util.List;
 
 import retrofit2.Call;
@@ -47,7 +54,7 @@ public class DetallePedirConductor extends AppCompatActivity implements OnMapRea
     private SupportMapFragment mapFragment;
 //
     private double mExtraorigenLat,mExtraorigenLong,mExtraDestinoLat,mExtraDestinoLon,mExtraConductorLat,mExtraConductorLon;
-    private String mExtraOrigen,mExtraDestino,mExtraConductorId;
+    private String mExtraOrigen,mExtraDestino,mExtraConductorId,Tiempo,Distanciakm;
 
     private LatLng mOriginLatlng,mDestinoLatlng;
     private GoogleApiProvider googleApiProvider;
@@ -122,6 +129,9 @@ public class DetallePedirConductor extends AppCompatActivity implements OnMapRea
         intent.putExtra("destino_lat",mDestinoLatlng.latitude);
         intent.putExtra("destino_lon",mDestinoLatlng.longitude);
         intent.putExtra("precio",precio);
+        intent.putExtra("tiempo",Tiempo);
+        intent.putExtra("distanciakm",Distanciakm);
+
 
         startActivity(intent);
         finish();
@@ -174,9 +184,11 @@ public class DetallePedirConductor extends AppCompatActivity implements OnMapRea
                     String Distancia=distancia.getString("text");
                     String Duracion=duracion.getString("text");
 
+
 //                    colocar el tiempo
                     TxtTiempo.setText(Duracion + " "+ Distancia);
-
+                    Tiempo=Duracion;
+                    Distanciakm=Distancia;
                     String [] distanciaykm=Distancia.split(" ");
                     double distanciaValor=Double.parseDouble(distanciaykm[0]);
 
@@ -198,18 +210,49 @@ public class DetallePedirConductor extends AppCompatActivity implements OnMapRea
         });
     }
 
+
     private void calcularPrecio(double distanciaValor, double duracionCValor) {
         infoProvider.getInfo().addListenerForSingleValueEvent(new ValueEventListener() {
+            @RequiresApi(api = Build.VERSION_CODES.O)
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()){
+//                    hora
+
+                    Calendar calendario=Calendar.getInstance();
+                    double horas,minutos;
+                    horas=calendario.get(Calendar.HOUR_OF_DAY);
+                    minutos=calendario.get(Calendar.MINUTE);
+
+                    double HoraActual=horas+(minutos/60);
+
                     Info info=snapshot.getValue(Info.class);
+
                     double totalDistancia=distanciaValor*info.getKm();
                     double totalDuracion=duracionCValor*info.getMin();
-                    double total=totalDistancia+totalDuracion;
-                    double maxtotal=total+200;
-                    precio=maxtotal;
-                    TxtPrecio.setText("$ "+maxtotal);
+
+                    double totalDistancianoche=distanciaValor*info.getKmnoche();
+                    double totalDuracionnoche=duracionCValor*info.getMinnoche();
+
+
+                    int total= (int) (totalDistancia+totalDuracion);
+                    int totalpico= (int) (totalDistancianoche+totalDuracionnoche);
+
+                    if (total<4600 || totalpico<4600){
+                        precio=4500;
+                        TxtPrecio.setText("$ "+4500);
+                    }else {
+                        if ((HoraActual>=6 && HoraActual<=8)||(HoraActual>=17&&HoraActual<=20)){
+                            precio=totalpico;
+                            TxtPrecio.setText("$ "+totalpico);
+                        }else {
+                            precio=total;
+                            TxtPrecio.setText("$ "+total);
+                        }
+
+
+                    }
+
                 }
             }
 

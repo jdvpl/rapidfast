@@ -9,4 +9,10 @@
     <color name="RojoVivo">#8C0808</color>
     <color name="azulclaro">#1976D2</color>
     <color name="gris">#9A9C9F</color>
+
+
+    <color name="one_payu_colorPrimary">#053bc1</color>
+    <color name="one_payu_colorPrimaryDark">#053bc1</color>
+    <color name="one_payu_colorAccent">#053bc1</color>
+    <color name="one_payu_baseTextColor">#ffffff</color>
 </resources>

@@ -40,4 +40,15 @@
     <string name="Confirmcontrasena">Confirmar Contraseña</string>
     <string name="EnviarCodigo">Enviar Codigo</string>
 
+    <string name="bienvenido">Bienvenido</string>
+    <string name="intro2t">Mas Rapido que nunca</string>
+    <string name="intro3t">Mejores precios</string>
+
+    <string name="bienvenidodes">holaa</string>
+
+    <string name="introantesrior">Anterior</string>
+    <string name="introsigueinte">Siguiente</string>
+    <string name="introlisto">Listo</string>
+
+
 </resources>

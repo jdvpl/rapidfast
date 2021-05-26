@@ -24,16 +24,16 @@ import com.jdrapid.rapidfastDriver.providers.HistoryBookingProvider;
 import java.util.Date;
 
 public class CalificacionClienteActivity extends AppCompatActivity {
-    private TextView mOrigenCalif,mDestinoCalif,califPrecio;
+    private TextView mOrigenCalif,mDestinoCalif,califPrecio,TxtMensajeCliente;
     private RatingBar mRatingBar;
     private Button mButtonCalificacion;
     private ClienteReservaProvider clienteReservaProvider;
     private String mExtraCleinteId;
     private HistoryBooking historyBooking;
     private HistoryBookingProvider historyBookingProvider;
-
+    String MensajeCliente;
     private float mCalificacion=0;
-    private double mExtraPrecio=0;
+    private String mExtraPrecio;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,12 +43,13 @@ public class CalificacionClienteActivity extends AppCompatActivity {
         mOrigenCalif=findViewById(R.id.OrigenCalificacionConductor);
         mDestinoCalif=findViewById(R.id.DestinoCalificacionConductor);
         califPrecio=findViewById(R.id.CalificacionPrecio);
+        TxtMensajeCliente=findViewById(R.id.TxtMensajeCliente);
 
         mRatingBar=findViewById(R.id.RtCalificarCliente);
         mButtonCalificacion=findViewById(R.id.CalificarCliente);
         mRatingBar=findViewById(R.id.RtCalificarCliente);
         mExtraCleinteId=getIntent().getStringExtra("idCliente");
-        mExtraPrecio=getIntent().getDoubleExtra("precio",0);
+        mExtraPrecio=getIntent().getStringExtra("precio");
         clienteReservaProvider=new ClienteReservaProvider();
         historyBookingProvider=new HistoryBookingProvider();
 
@@ -76,7 +77,7 @@ public class CalificacionClienteActivity extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()){
                     ClientBooking clientBooking=snapshot.getValue(ClientBooking.class);
-
+                    MensajeCliente=TxtMensajeCliente.getText().toString();
 
                     if (clientBooking != null) {
                         mOrigenCalif.setText(clientBooking.getOrigen());
@@ -96,7 +97,10 @@ public class CalificacionClienteActivity extends AppCompatActivity {
                             clientBooking.getOrigenLat(),
                             clientBooking.getOrigenLong(),
                             clientBooking.getDestinoLat(),
-                            clientBooking.getDestinoLong()
+                            clientBooking.getDestinoLong(),
+                            mExtraPrecio,
+                            MensajeCliente,
+                            ""
                     );
 
                 }
@@ -113,11 +117,12 @@ public class CalificacionClienteActivity extends AppCompatActivity {
         if (mCalificacion>0){
             historyBooking.setCalificacionCliente(mCalificacion);
             historyBooking.setTimestamp(new Date().getTime());
+            historyBooking.setMensajeCliente(MensajeCliente);
             historyBookingProvider.getHistorialReserva(historyBooking.getIdHistorialSolicitud()).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     if (snapshot.exists()){
-                        historyBookingProvider.ActualizarCalificacionCliente(historyBooking.getIdHistorialSolicitud(),mCalificacion).addOnSuccessListener(new OnSuccessListener<Void>() {
+                        historyBookingProvider.ActualizarCalificacionCliente(historyBooking.getIdHistorialSolicitud(),mCalificacion,MensajeCliente).addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {
                                 Toast.makeText(CalificacionClienteActivity.this, "La calificacion se guardo correctamente", Toast.LENGTH_SHORT).show();

@@ -17,16 +17,20 @@ import com.jdrapid.rapidfast.providers.ConductorProvider;
 import com.jdrapid.rapidfast.providers.HistoryBookingProvider;
 import com.squareup.picasso.Picasso;
 
+import java.text.SimpleDateFormat;
+
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class HistorialSolicitudDetalle extends AppCompatActivity {
 
-    private TextView txtNombredetalle,txtOrigenDetalle,txtDestinoDetalle,txtCalificacionDetalle;
+    private TextView txtNombredetalle,txtOrigenDetalle,txtDestinoDetalle,txtCalificacionDetalle,TxtCalifiPrecio,TxtCalifFecha,TxtCalifComen;
     private RatingBar ratingBardetalle;
     private CircleImageView circleImageConductor;
     private String mExtraid;
     private HistoryBookingProvider bookingProvider;
     private ConductorProvider conductorProvider;
+    SimpleDateFormat formatofecha = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,8 +40,14 @@ public class HistorialSolicitudDetalle extends AppCompatActivity {
         txtOrigenDetalle=findViewById(R.id.OringenDetalle);
         txtDestinoDetalle=findViewById(R.id.DestinoDetalle);
         txtCalificacionDetalle=findViewById(R.id.calificacionDetalle);
+
+        TxtCalifiPrecio=findViewById(R.id.calificacionPrecio);
+        TxtCalifFecha=findViewById(R.id.calificacionfecha);
+        TxtCalifComen=findViewById(R.id.calificacioncomentario);
+
         ratingBardetalle=findViewById(R.id.ratingbarSolicitudDetalle);
         circleImageConductor=findViewById(R.id.fotodeSolicituddetalle);
+
 
         ToolBar.mostrar(this,"",true);
         mExtraid=getIntent().getStringExtra("idHistorialSolicitud");
@@ -60,10 +70,12 @@ public class HistorialSolicitudDetalle extends AppCompatActivity {
                     txtOrigenDetalle.setText(historyBooking.getOrigen());
                     txtDestinoDetalle.setText(historyBooking.getDestino());
                     txtCalificacionDetalle.setText("Tu calificacion: "+historyBooking.getCalificacionConductor());
+
+                    TxtCalifiPrecio.setText("$ "+historyBooking.getPrecio());
+                    TxtCalifFecha.setText(String.valueOf(formatofecha.format(historyBooking.getTimestamp())));
+                    TxtCalifComen.setText(historyBooking.getMensajeCliente());
                     if (snapshot.hasChild("calificacionCliente")){
-
                         ratingBardetalle.setRating((float) historyBooking.getCalificacionCliente());
-
                     }
 
                     conductorProvider.getConductor(historyBooking.getIdConductor()).addListenerForSingleValueEvent(new ValueEventListener() {

@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -17,7 +18,8 @@ import com.jdrapid.rapidfast.includes.ToolBar;
 
 
 public class MainActivity extends AppCompatActivity {
-    Button BtnLogin,BtnRegistro,BtnEnviarCodigo;
+    Button BtnRegistro,BtnEnviarCodigo;
+    TextView BtnLogin;
     CountryCodePicker codePicker;
     EditText TxtTelefono;
     @Override
@@ -30,7 +32,23 @@ public class MainActivity extends AppCompatActivity {
         TxtTelefono=findViewById(R.id.txtTelefono);
 
         BtnEnviarCodigo=findViewById(R.id.BtnEnviarCodigo);
+        BtnLogin=findViewById(R.id.BtnIniciarSesion);
+        BtnRegistro=findViewById(R.id.BtnRegistro);
 
+        BtnLogin.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent ss=new Intent(MainActivity.this,LoginActivity.class);
+                startActivity(ss);
+            }
+        });
+        BtnRegistro.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent ss=new Intent(MainActivity.this,RegistroClienteActivity.class);
+                startActivity(ss);
+            }
+        });
         BtnEnviarCodigo.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

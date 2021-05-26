@@ -1,5 +1,5 @@
 {
-  "name": "rapidfast-web",
+  "name": "product-hunt-next",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -8,8 +8,11 @@
     "start": "next start"
   },
   "dependencies": {
+    "@babel/core": "^7.12.10",
+    "@emotion/babel-plugin": "^11.1.2",
     "@emotion/babel-preset-css-prop": "^11.0.0",
     "@emotion/core": "^11.0.0",
+    "@emotion/react": "^11.1.4",
     "@emotion/styled": "^11.0.0",
     "babel-plugin-emotion": "^11.0.0",
     "next": "10.0.5",

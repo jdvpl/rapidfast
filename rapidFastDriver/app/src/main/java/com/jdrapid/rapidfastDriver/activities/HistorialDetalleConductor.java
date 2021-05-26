@@ -18,16 +18,19 @@ import com.jdrapid.rapidfastDriver.providers.ClienteProvider;
 import com.jdrapid.rapidfastDriver.providers.HistoryBookingProvider;
 import com.squareup.picasso.Picasso;
 
+import java.text.SimpleDateFormat;
+
 import de.hdodenhof.circleimageview.CircleImageView;
 
 public class HistorialDetalleConductor extends AppCompatActivity {
 
-    private TextView txtNombredetalle,txtOrigenDetalle,txtDestinoDetalle,txtCalificacionDetalle;
+    private TextView txtNombredetalle,txtOrigenDetalle,txtDestinoDetalle,txtCalificacionDetalle,TxtCalifiPrecio,TxtCalifFecha,TxtCalifComen;
     private RatingBar ratingBardetalle;
     private CircleImageView circleImageConductor,circleatras;
     private String mExtraid;
     private HistoryBookingProvider bookingProvider;
     private ClienteProvider clienteProvider;
+    SimpleDateFormat formatofecha = new SimpleDateFormat("yyyy-MM-dd HH:mm");
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,6 +43,11 @@ public class HistorialDetalleConductor extends AppCompatActivity {
         txtCalificacionDetalle=findViewById(R.id.calificacionDetalle);
         ratingBardetalle=findViewById(R.id.ratingbarSolicitudDetalle);
         circleImageConductor=findViewById(R.id.fotodeSolicituddetalle);
+
+        TxtCalifiPrecio=findViewById(R.id.calificacionPrecio);
+        TxtCalifFecha=findViewById(R.id.calificacionfecha);
+        TxtCalifComen=findViewById(R.id.calificacioncomentario);
+
 
         mExtraid=getIntent().getStringExtra("idHistorialSolicitud");
 
@@ -59,6 +67,12 @@ public class HistorialDetalleConductor extends AppCompatActivity {
                     txtOrigenDetalle.setText(historyBooking.getOrigen());
                     txtDestinoDetalle.setText(historyBooking.getDestino());
                     txtCalificacionDetalle.setText("Tu calificacion: "+historyBooking.getCalificacionCliente());
+
+                    TxtCalifiPrecio.setText("$ "+historyBooking.getPrecio());
+
+                    TxtCalifFecha.setText(String.valueOf(formatofecha.format(historyBooking.getTimestamp())));
+
+                    TxtCalifComen.setText(historyBooking.getMensajeConductor());
                     if (snapshot.hasChild("calificacionConductor")){
 
                         ratingBardetalle.setRating((float) historyBooking.getCalificacionConductor());

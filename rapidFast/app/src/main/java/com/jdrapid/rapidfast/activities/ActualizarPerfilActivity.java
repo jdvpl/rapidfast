@@ -77,14 +77,12 @@ public class ActualizarPerfilActivity extends AppCompatActivity {
             }
         });
         obtenerInformacionCliente();
-
     }
 
     private void AbrirGaleria() {
         Intent intentGaleria=new Intent(Intent.ACTION_GET_CONTENT);
         intentGaleria.setType("image/*");
         startActivityForResult(intentGaleria,CODIGO_GALERIA);
-
     }
 
     @Override
@@ -94,13 +92,11 @@ public class ActualizarPerfilActivity extends AppCompatActivity {
             try {
                 mImageFile= FileUtil.from(this,data.getData());
                 FotoPerfil.setImageBitmap(BitmapFactory.decodeFile(mImageFile.getAbsolutePath()));
-
             }catch (Exception e){
                 Log.d("Error", "Mensaje: "+e.getMessage());
             }
         }
     }
-
     private void obtenerInformacionCliente(){
         clienteProvider.getCliente(authProvider.getId()).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -118,9 +114,7 @@ public class ActualizarPerfilActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
+            public void onCancelled(@NonNull DatabaseError error) {}
         });
     }
     private void actualizarPerfil() {
@@ -129,7 +123,6 @@ public class ActualizarPerfilActivity extends AppCompatActivity {
             progressDialog.setMessage("Espere un momento por favor...");
             progressDialog.setCanceledOnTouchOutside(false);
             progressDialog.show();
-
             guardarImagen();
         }else if (mImageFile==null){
             progressDialog.show();
@@ -146,7 +139,6 @@ public class ActualizarPerfilActivity extends AppCompatActivity {
             });
         }
     }
-
     private void guardarImagen() {
       imageProvider.guardarImagen(ActualizarPerfilActivity.this,mImageFile,authProvider.getId()).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
             @Override

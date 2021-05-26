@@ -1,0 +1,32 @@
+--------------crear proyecto con next-------------
+npx create-next-app nombre_proyecto
+
+----------correr con next-------------
+npm run dev
+
+Limpiar contenido de index.js
+
+
+--------Instalar emotion-----------
+npm i @emotion/core @emtoion/styled babel-plugin-emotin @emotion/babel-preset-css-prop
+
+---se crear un archivo .babelrc-------
+{
+    "presets": [
+        "next/babel",
+        "@emotion/babel-preset-css-prop"
+    ],
+    "plugins": [
+        [
+            "@emotion"
+        ]
+        
+    ]   
+}
+
+Validar el package.json es diferente y toca instalar otras dependencias cambia cada rato
+
+
+----Crear componente principal----
+Layout.js
+

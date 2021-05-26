@@ -1,2 +1,4 @@
+include ':payu-java-sdk-1.3.6'
+include ':payu-java-sdk-1.3.6'
 include ':app'
 rootProject.name = "RapidFast"

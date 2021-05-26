@@ -21,7 +21,7 @@
             android:layout_width="170dp"
             android:layout_height="170dp"
             android:src="@drawable/logo"
-            android:layout_marginTop="40dp"
+            android:layout_marginTop="20dp"
             android:layout_gravity="center"
             />
         <TextView
@@ -53,6 +53,8 @@
             android:textStyle="bold"
             android:layout_marginTop="20dp"
             android:textSize="22sp"/>
+
+
         <TextView
             android:id="@+id/DestinoNotificacion"
             android:layout_width="match_parent"
@@ -64,10 +66,33 @@
             android:layout_marginTop="8dp"
             android:textSize="17sp"/>
 
+        <ImageView
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:src="@drawable/money"
+            android:layout_gravity="center"
+            app:tint="@color/black" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="18sp"
+            android:textColor="@color/black"
+            android:textAllCaps="true"
+            android:layout_gravity="center"
+            android:textStyle="bold"
+            android:text="Precio"/>
+        <TextView
+            android:id="@+id/notificacionPrecio"
+            android:layout_width="wrap_content"
+            android:layout_gravity="center"
+            android:layout_height="wrap_content"
+            android:text="0"/>
+
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:visibility="gone"
             android:orientation="horizontal">
 
             <LinearLayout
@@ -75,7 +100,6 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:layout_marginTop="20dp"
                 android:orientation="vertical">
                 <ImageView
                     android:layout_width="25dp"
@@ -89,7 +113,7 @@
                     android:textColor="@color/black"
                     android:textAllCaps="true"
                     android:textStyle="bold"
-                    android:text="Tiempo de llegada"/>
+                    android:text="Duracion"/>
                 <TextView
                     android:id="@+id/notificacionTiempo"
                     android:layout_width="wrap_content"
@@ -103,7 +127,6 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:layout_marginTop="20dp"
                 android:orientation="vertical">
                 <ImageView
                     android:layout_width="25dp"
@@ -126,35 +149,16 @@
                     android:text="0 Km"/>
 
             </LinearLayout>
-
         </LinearLayout>
+
         <LinearLayout
             android:layout_marginTop="15sp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
+            android:orientation="horizontal"
             android:gravity="center"
             >
 
-            <ImageView
-                android:layout_width="25dp"
-                android:layout_height="25dp"
-                android:src="@drawable/money"
-                app:tint="@color/black" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textSize="18sp"
-                android:textColor="@color/black"
-                android:textAllCaps="true"
-                android:textStyle="bold"
-                android:text="Precio"/>
-            <TextView
-                android:id="@+id/notificacionPrecio"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="10500"/>
         </LinearLayout>
 
 
@@ -168,8 +172,8 @@
             android:layout_gravity="center"
             android:textColor="@color/black"
             android:textStyle="bold"
-            android:layout_marginTop="25dp"
-            android:text="15"/>
+            android:layout_marginTop="20dp"
+            android:text="30"/>
 
 
         <LinearLayout

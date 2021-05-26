@@ -59,7 +59,9 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.model.RectangularBounds;
+import com.google.android.libraries.places.api.model.TypeFilter;
 import com.google.android.libraries.places.api.net.PlacesClient;
+import com.google.android.libraries.places.widget.Autocomplete;
 import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
 import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
 import com.google.firebase.database.DataSnapshot;
@@ -74,13 +76,21 @@ import com.jdrapid.rapidfast.providers.AuthProvider;
 import com.jdrapid.rapidfast.providers.ClienteReservaProvider;
 import com.jdrapid.rapidfast.providers.ConductorProvider;
 import com.jdrapid.rapidfast.providers.GeofireProvider;
+import com.jdrapid.rapidfast.providers.GoogleApiProvider;
 import com.jdrapid.rapidfast.providers.TokenProvider;
 import com.jdrapid.rapidfast.utils.CarMoveAnim;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class MapClienteActivity extends AppCompatActivity  implements OnMapReadyCallback {
 
@@ -117,14 +127,17 @@ public class MapClienteActivity extends AppCompatActivity  implements OnMapReady
     private boolean mOrigenSelect =true;
     private ClienteReservaProvider clienteReservaProvider;
     private HashMap<String,String>mImagenMarkers=new HashMap<String, String>();
-    private int mCounter=0;
 
+    private int mCounter=0;
     SharedPreferences mPref;
+    Boolean DistanciaBogota=false;
+    int finalDistancia;
 
     private GoogleApiClient googleApiClient;
     private final int REQUEST_CHECK_SETTINGS=0x1;
 
     private ArrayList<ConductorLocation> mconductorLocations =new ArrayList<>();
+    private GoogleApiProvider googleApiProvider;
 
     LocationCallback locationCallback = new LocationCallback() {
         @Override
@@ -140,7 +153,7 @@ public class MapClienteActivity extends AppCompatActivity  implements OnMapReady
                     nMap.moveCamera(CameraUpdateFactory.newCameraPosition(
                             new CameraPosition.Builder()
                                     .target(new LatLng(location.getLatitude(), location.getLongitude()))
-                                    .zoom(16f).build()
+                                    .zoom(18f).build()
 
                     ));
                         MostrarConductoresActivos();
@@ -166,14 +179,10 @@ public class MapClienteActivity extends AppCompatActivity  implements OnMapReady
         clienteReservaProvider=new ClienteReservaProvider();
         conductorProvider=new ConductorProvider();
 
-
+        googleApiProvider=new GoogleApiProvider(MapClienteActivity.this);
         fusedLocation = LocationServices.getFusedLocationProviderClient(this);
         BtnSolcitarViaje=findViewById(R.id.BtnSolicitarViaje);
         BtnCambiar=findViewById(R.id.btnCambiar);
-
-
-
-
 
         BtnCambiar.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -220,10 +229,46 @@ public class MapClienteActivity extends AppCompatActivity  implements OnMapReady
         BtnSolcitarViaje.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                PedirConductor();
+                    PedirConductor();
+                    mautocompleteDestino.setText("");
             }
         });
     }
+
+    private void ObtenerCiudad() {
+        if (mOriginLtg!=null && mDestinoLtg!=null){
+            googleApiProvider.getDirecciones(mOriginLtg,mDestinoLtg).enqueue(new Callback<String>() {
+                @Override
+                public void onResponse(Call<String> call, Response<String> response) {
+                    try {
+                        JSONObject jsonObject=new JSONObject(response.body());
+                        JSONArray jsonArray=jsonObject.getJSONArray("routes");
+                        JSONObject ruta=jsonArray.getJSONObject(0);
+                        JSONArray legs=ruta.getJSONArray("legs");
+                        JSONObject leg=legs.getJSONObject(0);
+
+                        JSONObject distancia=leg.getJSONObject("distance");
+                        String Distancia=distancia.getString("text");
+                        String[] numero=Distancia.split(" ");
+                        finalDistancia=Integer.parseInt(numero[0]);
+
+                        Toast.makeText(MapClienteActivity.this, "Distancia "+numero[0], Toast.LENGTH_SHORT).show();
+
+
+                    }catch (Exception e){
+
+                    }
+                }
+                @Override
+                public void onFailure(Call<String> call, Throwable t) {
+
+                }
+            });
+        }
+
+    }
+
+
     private GoogleApiClient getAPIClienteInstance(){
         GoogleApiClient googleApiClient=new GoogleApiClient.Builder(this).addApi(LocationServices.API).build();
         return googleApiClient;
@@ -267,28 +312,53 @@ public class MapClienteActivity extends AppCompatActivity  implements OnMapReady
     }
 
     private void PedirConductor() {
-        if (mOriginLtg!=null &&mDestinoLtg!=null) {
-            Intent intent=new Intent(MapClienteActivity.this,DetallePedirConductor.class);
-            intent.putExtra("origin_lat",mOriginLtg.latitude);
-            intent.putExtra("origin_lon",mOriginLtg.longitude);
-            intent.putExtra("destino_lat",mDestinoLtg.latitude);
-            intent.putExtra("destino_lon",mDestinoLtg.longitude);
-            intent.putExtra("Origen",mOrigin);
-            intent.putExtra("Destino",mDestino);
-            startActivity(intent);
-        }else {
+        if (mOriginLtg!=null && mDestinoLtg!=null) {
+
+            try {
+                if (finalDistancia<=60) {
+                    Intent intent = new Intent(MapClienteActivity.this, DetallePedirConductor.class);
+                    intent.putExtra("origin_lat", mOriginLtg.latitude);
+                    intent.putExtra("origin_lon", mOriginLtg.longitude);
+                    intent.putExtra("destino_lat", mDestinoLtg.latitude);
+                    intent.putExtra("destino_lon", mDestinoLtg.longitude);
+                    intent.putExtra("Origen", mOrigin);
+                    intent.putExtra("Destino", mDestino);
+                    startActivity(intent);
+                }else {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                    builder.setTitle("Ciudad no Disponible");
+                    builder.setMessage("Debes seleccionar un lugar en bogota");
+                    builder.setPositiveButton("Aceptar", null);
+                    AlertDialog dialog = builder.create();
+                    dialog.show();
+                }
+
+            }
+            catch (Exception e){
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setTitle("Ciudad Erronea");
+                builder.setMessage(e.getMessage()+"kisamado");
+                builder.setPositiveButton("Aceptar", null);
+                AlertDialog dialog = builder.create();
+                dialog.show();
+            }
+
+            }
+        else {
             Toast.makeText(this,"Debe seleccionar el lugar de recogida y destino",Toast.LENGTH_LONG).show();
         }
     }
 
     private void LimiteBusqueda(){
-        LatLng northSide = SphericalUtil.computeOffset(latLngUbicacionActual, 20000,0);
-        LatLng southSide = SphericalUtil.computeOffset(latLngUbicacionActual, 20000,180);
+        LatLng northSide = SphericalUtil.computeOffset(latLngUbicacionActual, 3000,0);
+        LatLng southSide = SphericalUtil.computeOffset(latLngUbicacionActual, 3000,180);
         mautocomplete.setCountry("COL");
         mautocomplete.setLocationBias(RectangularBounds.newInstance(southSide,northSide));
         mautocompleteDestino.setCountry("COL");
         mautocompleteDestino.setLocationBias(RectangularBounds.newInstance(southSide,northSide));
     }
+
 
     private void OnCameraMoved(){
         cameraIdleListener=new GoogleMap.OnCameraIdleListener() {
@@ -302,16 +372,18 @@ public class MapClienteActivity extends AppCompatActivity  implements OnMapReady
                         String ciudad=addressList.get(0).getLocality();
                         String pais=addressList.get(0).getCountryName();
                         String direccion=addressList.get(0).getAddressLine(0);
-                        mOrigin=direccion;
+                        mOrigin=direccion+ciudad;
                         mautocomplete.setText(direccion+" "+ciudad);
+                        ObtenerCiudad();
                     }else {
                         mDestinoLtg=nMap.getCameraPosition().target;
                         List<Address> addressList=geocoder.getFromLocation(mDestinoLtg.latitude,mDestinoLtg.longitude,1);
                         String ciudad=addressList.get(0).getLocality();
                         String pais=addressList.get(0).getCountryName();
                         String direccion=addressList.get(0).getAddressLine(0);
-                        mDestino=direccion+" "+ciudad;
+                        mDestino=direccion;
                         mautocompleteDestino.setText(direccion+" "+ciudad);
+                        ObtenerCiudad();
                     }
                 }catch (Exception e){
                     Log.d("Error: "," Mensaje Eror"+e.getMessage());
@@ -320,7 +392,6 @@ public class MapClienteActivity extends AppCompatActivity  implements OnMapReady
         };
     }
     private void InstanceAutocompleteOrigen(){
-
 
         mautocomplete=(AutocompleteSupportFragment)getSupportFragmentManager().findFragmentById(R.id.autocompletado);
         mautocomplete.setPlaceFields(Arrays.asList(Place.Field.ID,Place.Field.LAT_LNG,Place.Field.NAME));
@@ -333,6 +404,7 @@ public class MapClienteActivity extends AppCompatActivity  implements OnMapReady
                 Log.d("Place","Name: "+mOrigin);
                 Log.d("Place","Lat: "+mOriginLtg.latitude);
                 Log.d("Place","Lat: "+mOriginLtg.longitude);
+                ObtenerCiudad();
             }
 
             @Override
@@ -348,6 +420,8 @@ public class MapClienteActivity extends AppCompatActivity  implements OnMapReady
         mautocompleteDestino=(AutocompleteSupportFragment)getSupportFragmentManager().findFragmentById(R.id.autocompletadodestino);
         mautocompleteDestino.setPlaceFields(Arrays.asList(Place.Field.ID,Place.Field.LAT_LNG,Place.Field.NAME));
         mautocompleteDestino.setHint("Lugar de destino");
+
+
         mautocompleteDestino.setOnPlaceSelectedListener(new PlaceSelectionListener() {
             @Override
             public void onPlaceSelected(@NonNull Place place) {
@@ -356,6 +430,7 @@ public class MapClienteActivity extends AppCompatActivity  implements OnMapReady
                 Log.d("Place","Name: "+mDestino);
                 Log.d("Place","Lat: "+mDestinoLtg.latitude);
                 Log.d("Place","Lat: "+mDestinoLtg.longitude);
+                ObtenerCiudad();
             }
 
             @Override

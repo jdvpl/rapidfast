@@ -6,6 +6,8 @@ import androidx.core.app.ActivityCompat;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.NotificationManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -97,11 +99,11 @@ public class MapClienteReservaActivity extends AppCompatActivity implements OnMa
 
 //    textview
     private TextView txtNombreConductor,TxtMarca,TxtPlaca;
-    private TextView txtOrigenConductor,txtDestinoConductor,txtEstadoSolicitud;
+    private TextView txtOrigenConductor,txtDestinoConductor,txtEstadoSolicitud,TxtPrecio;
     private ImageView FotoConductorsolicitud;
 
     private Button BtnCancelar,BtnLlamarConductor,BtnLlamarSoporte,BtnLlamarPolicia,BtnCancelarTodo;
-    private String TelefonoCOnductor,TelefonoSoporte,TelefonoPolicia;
+    private String TelefonoCOnductor,TelefonoSoporte,TelefonoPolicia,precio;
 
     private LatLng mOriginLatlng,mDestinoLatlng;
     private GoogleApiProvider googleApiProvider;
@@ -149,6 +151,7 @@ public class MapClienteReservaActivity extends AppCompatActivity implements OnMa
         txtEstadoSolicitud=findViewById(R.id.txtEstadoSolicitud);
         txtOrigenConductor=findViewById(R.id.txtConductorOrigen);
         txtDestinoConductor=findViewById(R.id.txtConductorDestino);
+        TxtPrecio=findViewById(R.id.txtconductorprecio);
         FotoConductorsolicitud=findViewById(R.id.fotoConductorBooking);
         BtnCancelar=findViewById(R.id.btnCancelar);
         BtnLlamarConductor=findViewById(R.id.btnLlamarConductor);
@@ -165,17 +168,9 @@ public class MapClienteReservaActivity extends AppCompatActivity implements OnMa
         mEditor=mPref.edit();
         ObtenerCelulares();
 
-        BtnCancelarTodo.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent=new Intent(MapClienteReservaActivity.this,MapClienteActivity.class);
-                startActivity(intent);
-                finish();
-                mEditor.clear().commit();
-                BorrarConductoresEncontrados();
-                CancelarSolicitud();
-            }
-        });
+        validarsiConductorCanceloViaje();
+
+
         BtnCancelar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -247,14 +242,73 @@ public class MapClienteReservaActivity extends AppCompatActivity implements OnMa
         obtenerEstado();
         obtenerClienteSolicitudInfo();
 
+        BtnCancelarTodo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                CancelarBooking();
+                Toast.makeText(MapClienteReservaActivity.this, "Haz cancelado la solicitud", Toast.LENGTH_SHORT).show();
+                BorrarConductoresEncontrados();
+            }
+        });
     }
+    private void CancelarBooking() {
+        clienteReservaProvider.actualizarHistoryBooking(authProvider.getId()).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                clienteReservaProvider.actualizarEstado(authProvider.getId(), "Cancelado");
+                //con esto limpiamos todos los datos de sharepreference
+                mEditor.clear().commit();
+                EnviarNotificacionCancelacion();
+                conductoresEncontradosProvider.Borrar(midCondutor);
+                clienteReservaProvider.borrar(authProvider.getId());
+                iraMapClienteActividad();
+                mEditor.clear().commit();
+
+            }
+        });
+
+    }
+
+    private void validarsiConductorCanceloViaje() {
+        clienteReservaProvider.getClienteSolicitud(authProvider.getId()).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (!snapshot.exists()){
+                    Toast.makeText(MapClienteReservaActivity.this, "", Toast.LENGTH_SHORT).show();
+                }
+//                significa que el la solicitud existe
+                else if (snapshot.hasChild("idConductor") && snapshot.hasChild("estado")){
+
+                    String idConductor=snapshot.child("idConductor").getValue().toString();
+                    String estado=snapshot.child("estado").getValue().toString();
+                    if (estado.equals("Cancelado")){
+                        NotificationManager notificationManager=(NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+                        notificationManager.cancel(2);
+                        iraMapClienteActividad();
+                        mEditor.clear().commit();
+                    }
+                }
+            }
+
+
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+    private void iraMapClienteActividad() {
+        Intent lol=new Intent(MapClienteReservaActivity.this,MapClienteActivity.class);
+        startActivity(lol);
+        finish();
+    }
+
     private void BorrarConductoresEncontrados() {
         for (String idConductor: mConductoresFounList){
             conductoresEncontradosProvider.Borrar(idConductor);
-
         }
     }
-
     private void CancelarSolicitud() {
         clienteReservaProvider.borrar(authProvider.getId()).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
@@ -262,9 +316,7 @@ public class MapClienteReservaActivity extends AppCompatActivity implements OnMa
                 EnviarNotificacionCancelacion();
             }
         });
-
     }
-
     private void EnviarNotificacionCancelacion(){
         if (mTokenList.size()>0){
             Map<String,String> map=new HashMap<>();
@@ -281,7 +333,6 @@ public class MapClienteReservaActivity extends AppCompatActivity implements OnMa
                     startActivity(intent);
                     finish();
                 }
-
                 @Override
                 public void onFailure(Call<FCMResponse> call, Throwable t) {
                     Log.d("ErrorKisamado","Error 2527: "+t.getMessage());
@@ -341,11 +392,12 @@ public class MapClienteReservaActivity extends AppCompatActivity implements OnMa
                     String estado=snapshot.getValue().toString();
 
                     if (estado.equals("Aceptado")){
-
                         txtEstadoSolicitud.setText("Viaje : Aceptado");
                     }
                     if (estado.equals("Iniciar")){
                         txtEstadoSolicitud.setText("Viaje : Iniciado");
+                        BtnLlamarConductor.setVisibility(View.GONE);
+                        BtnCancelarTodo.setVisibility(View.GONE);
                         String mStatuspref=mPref.getString("status","");
                         if (!mStatuspref.equals("Iniciar")){
                             comenzarSolicitud();
@@ -353,8 +405,12 @@ public class MapClienteReservaActivity extends AppCompatActivity implements OnMa
                     }else if (estado.equals("Finalizar")){
                         txtEstadoSolicitud.setText("Viaje : Finalizado");
                         terminarSolicitud();
+                    }else if (estado.equals("Cancelado")){
+                        mEditor.clear().commit();
+
                     }
-                }
+
+                    }
             }
 
             @Override
@@ -367,6 +423,7 @@ public class MapClienteReservaActivity extends AppCompatActivity implements OnMa
     private void terminarSolicitud() {
         mEditor.clear().commit();
         Intent intent=new Intent(MapClienteReservaActivity.this,CalificarConductorActivity.class);
+        intent.putExtra("precio",precio);
         startActivity(intent);
         finish();
     }
@@ -390,25 +447,34 @@ public class MapClienteReservaActivity extends AppCompatActivity implements OnMa
         clienteReservaProvider.getClienteSolicitud(authProvider.getId()).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()){
-                    String destino=snapshot.child("destino").getValue().toString();
-                    String origen=snapshot.child("origen").getValue().toString();
-                    String idConductor=snapshot.child("idConductor").getValue().toString();
+                try {
+                    if (snapshot.exists()){
+                        String destino=snapshot.child("destino").getValue().toString();
+                        String origen=snapshot.child("origen").getValue().toString();
+                        String idConductor=snapshot.child("idConductor").getValue().toString();
+                        String precioviaje=snapshot.child("precio").getValue().toString();
+                        precio=precioviaje;
 
-                    midCondutor=idConductor;
-                    double destinoLat= Double.parseDouble(snapshot.child("destinoLat").getValue().toString());
-                    double destinoLon= Double.parseDouble(snapshot.child("destinoLong").getValue().toString());
-                    double origenLat= Double.parseDouble(snapshot.child("origenLat").getValue().toString());
-                    double origenLong= Double.parseDouble(snapshot.child("origenLong").getValue().toString());
+                        midCondutor=idConductor;
+                        double destinoLat= Double.parseDouble(snapshot.child("destinoLat").getValue().toString());
+                        double destinoLon= Double.parseDouble(snapshot.child("destinoLong").getValue().toString());
+                        double origenLat= Double.parseDouble(snapshot.child("origenLat").getValue().toString());
+                        double origenLong= Double.parseDouble(snapshot.child("origenLong").getValue().toString());
 
-                    mOriginLatlng=new LatLng(origenLat,origenLong);
-                    mDestinoLatlng=new LatLng(destinoLat,destinoLon);
-                    txtOrigenConductor.setText("Recoger en: ".toUpperCase()+origen.toUpperCase());
-                    txtDestinoConductor.setText("Destino: ".toUpperCase()+destino.toUpperCase());
-                    nMap.addMarker(new MarkerOptions().position(mOriginLatlng).title("Recoger Aqui").icon(BitmapDescriptorFactory.fromResource(R.drawable.pin)));
-                    obtenerConductor(idConductor);
-                    ObtenerUbicacionConductor(idConductor);
+                        mOriginLatlng=new LatLng(origenLat,origenLong);
+                        mDestinoLatlng=new LatLng(destinoLat,destinoLon);
+                        TxtPrecio.setText(precioviaje);
+                        txtOrigenConductor.setText("Recoger en: ".toUpperCase()+origen.toUpperCase());
+                        txtDestinoConductor.setText("Destino: ".toUpperCase()+destino.toUpperCase());
+                        nMap.addMarker(new MarkerOptions().position(mOriginLatlng).title("Recoger Aqui").icon(BitmapDescriptorFactory.fromResource(R.drawable.pin)));
+                        obtenerConductor(idConductor);
+                        ObtenerUbicacionConductor(idConductor);
+
+                    }
+                }catch (Exception e){
+                    mEditor.clear().commit();
                 }
+
             }
 
             @Override
@@ -528,8 +594,6 @@ public class MapClienteReservaActivity extends AppCompatActivity implements OnMa
                     JSONObject leg=legs.getJSONObject(0);
                     JSONObject distancia=leg.getJSONObject("distance");
                     JSONObject duracion=leg.getJSONObject("duration");
-
-
 
 //                    obtener el string de la api
 

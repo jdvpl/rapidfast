@@ -28,10 +28,12 @@ public class HistoryBookingProvider {
     public DatabaseReference getHistorialReserva(String idHistory){
         return databaseReference.child(idHistory);
     }
-    public Task<Void> ActualizarCalificacionConducotor(String idHistory,float CalificacionConductor){
+    public Task<Void> ActualizarCalificacionConducotor(String idHistory,float CalificacionConductor,String mensajeConductor){
         Map<String,Object> map=new HashMap<>();
         map.put("calificacionConductor",CalificacionConductor);
+        map.put("mensajeConductor",mensajeConductor);
         return databaseReference.child(idHistory).updateChildren(map);
     }
+
 
 }

@@ -90,9 +90,8 @@ public class NotificacionSolicitudActivity extends AppCompatActivity {
 //        asignarle los valores
         TxtNotificacionOrigen.setText(mExtraOrigen);
         TxtNotificacionDestino.setText(MextraDestino);
-        TxtNotificacionTiempo.setText(mExtraTiempo);
-        TxtNotificacionDistancia.setText(MextraDistacia);
         TxtPrecio.setText("$"+mExtraPrecio);
+        ObtenerInfo();
 
 
         getWindow().addFlags(
@@ -120,6 +119,27 @@ public class NotificacionSolicitudActivity extends AppCompatActivity {
         });
 
     }
+
+    private void ObtenerInfo(){
+        clienteReservaProvider.getClienteSolicitud(mExtraClienteId).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()){
+                    String Km=snapshot.child("distanciaKm").getValue().toString();
+                    String time=snapshot.child("tiempo").getValue().toString();
+
+                    TxtNotificacionTiempo.setText(time);
+                    TxtNotificacionDistancia.setText(Km);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
     private void ValidarsiCanceloCliente(){
         listener=clienteReservaProvider.getClienteSolicitud(mExtraClienteId).addValueEventListener(new ValueEventListener() {
             @Override

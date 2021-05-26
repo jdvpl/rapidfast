@@ -15,14 +15,16 @@ public class HistoryBooking {
     double destinoLong;
     double calificacionCliente;
     double calificacionConductor;
+    String precio;
     long timestamp;
-
+    String mensajeConductor;
+    String mensajeCliente;
 
     public HistoryBooking(){
 
     }
 
-    public HistoryBooking(String idHistorialSolicitud, String idCliente, String idConductor, String destino, String origen, String tiempo, String distanciaKm, String estado, double origenLat, double origenLong, double destinoLat, double destinoLong) {
+    public HistoryBooking(String idHistorialSolicitud, String idCliente, String idConductor, String destino, String origen, String tiempo, String distanciaKm, String estado, double origenLat, double origenLong, double destinoLat, double destinoLong,String precio, String mensajeCliente, String mensajeConductor) {
         this.idHistorialSolicitud = idHistorialSolicitud;
         this.idCliente = idCliente;
         this.idConductor = idConductor;
@@ -35,6 +37,9 @@ public class HistoryBooking {
         this.origenLong = origenLong;
         this.destinoLat = destinoLat;
         this.destinoLong = destinoLong;
+        this.precio=precio;
+        this.mensajeCliente=mensajeCliente;
+        this.mensajeConductor=mensajeConductor;
 
     }
 
@@ -158,5 +163,27 @@ public class HistoryBooking {
         this.timestamp = timestamp;
     }
 
+    public String getPrecio() {
+        return precio;
+    }
 
+    public void setPrecio(String precio) {
+        this.precio = precio;
+    }
+
+    public String getMensajeConductor() {
+        return mensajeConductor;
+    }
+
+    public void setMensajeConductor(String mensajeConductor) {
+        this.mensajeConductor = mensajeConductor;
+    }
+
+    public String getMensajeCliente() {
+        return mensajeCliente;
+    }
+
+    public void setMensajeCliente(String mensajeCliente) {
+        this.mensajeCliente = mensajeCliente;
+    }
 }
